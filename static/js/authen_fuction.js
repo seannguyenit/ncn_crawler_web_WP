@@ -3,16 +3,16 @@
 init_authen();
 
 function init_authen() {
-    var cr = document.getElementById('current_username');
-    if (cr) {
-        if(!check_is_login()){
-            location.href = "/login";
-        }
-        var cr_u = get_cr_user();
-        if (cr_u) {
-            cr.innerText = cr_u.username;
-        }
+    // var cr = document.getElementById('current_username');
+    // if (cr) {
+    if (!check_is_login()) {
+        location.href = "/login";
     }
+    // var cr_u = get_cr_user();
+    // if (cr_u) {
+    //     cr.innerText = cr_u.username;
+    // }
+    // }
 }
 
 function check_is_login() {

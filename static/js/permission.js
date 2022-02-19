@@ -32,9 +32,25 @@ async function init_menu() {
         menu.innerHTML = '';
         var cr_user = get_cr_user();
         var lst_menu = await menu_get_current_menu(cr_user.id);
-        lst_menu.forEach(item => {
-            menu.innerHTML += `<a class="nav-link active title-nav${cr_url.includes(item.action) ? " selected" : ""}" aria-current="page" href="/home/${item.action}">${item.name}</a>`;
+        var lst_parent = lst_menu.filter(f => { return f.par_id == 0 });
+        lst_parent.forEach(fe => {
+            fe.childs = lst_menu.filter(ft => { return ft.par_id == fe.id })
         });
+        lst_parent.forEach(item => {
+            var str_chile = '';
+            if (item.childs.length > 0) {
+                str_chile = '<ul class="list-group">';
+                item.childs.forEach(fec => {
+                    str_chile += `<li class="list-group-item"><a href="/home/${fec.action}">${fec.name}</a></li>`
+                });
+                str_chile += '</ul>';
+            }
+            menu.innerHTML += ` <li class="list-group-item">${item.action.length == 0 ? `<a href="#">${item.name}</a>` : `<a href="/home/${item.action}">${item.name}</a>`}
+            ${str_chile}
+        </li>`
+        });
+        menu.innerHTML += `<li class="list-group-item"><a href="#" id="current_username">${cr_user.username}</a> <a aria-current="page" onclick="acc_logout()" href="#">(Đăng xuất)</a>
+    </li>`
     }
 }
 

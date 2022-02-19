@@ -15,56 +15,48 @@
 </head>
 
 <body class="body-bg-custom">
-    <!-- Top Bar -->
-    <nav class="navbar navbar-expand-sm navbar-light bg-main-color">
-        <div class="container-fluid">
+    <div class="col-12 d-flex">
+        <div class="col-3">
             <a class="navbar-brand com-name" href="/home/notice">ncnmediacontent</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_menu_nav"
-                aria-controls="main_menu_nav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="main_menu_nav" style="justify-content: space-between;">
-                <div id="main_menu" class="navbar-nav">
-                    <a class="nav-link active title-nav" aria-current="page" href="/home/notice">Thông báo</a>
-                    <a class="nav-link active title-nav" aria-current="page" href="/home/getcontent">Lấy nội dung</a>
-
-                </div>
-                <div class="navbar-nav user-info">
-                    <div class="nav-link active" aria-current="page"><a id="current_username">USER</a> <a
-                            class="nav-link active" aria-current="page" onclick="acc_logout()" href="#">(Đăng xuất)</a>
+            <div id="main_menu_nav">
+                <ul id="main_menu" class="list-group">
+                    <li class="list-group-item"><a>Item</a>
+                        <ul class="list-group">
+                            <li class="list-group-item active">Active item</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="col-12">
+                <div class="container">
+                    <div class="col-12 pt-5 pb-2">
+                        <button onclick="open_modal(0)" class="btn btn-primary">Tạo mới</button>
+                    </div>
+                    <div class="col-12">
+                        <table id="table_data" class="tablemanager table table-striped table-bordered table-sm"
+                            cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>stt</th>
+                                    <th>Username</th>
+                                    <th>Tên</th>
+                                    <th>SDT</th>
+                                    <th>ĐC</th>
+                                    <!-- <th>Trạng thái</th> -->
+                                    <th class="disableFilterBy">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+    
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-    </nav>
-    <section>
-        <div class="col-12">
-            <div class="container">
-                <div class="col-12 pt-5 pb-2">
-                    <button onclick="open_modal(0)" class="btn btn-primary">Tạo mới</button>
-                </div>
-                <div class="col-12">
-                    <table id="table_data" class="tablemanager table table-striped table-bordered table-sm"
-                        cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th>stt</th>
-                                <th>Username</th>
-                                <th>Tên</th>
-                                <th>SDT</th>
-                                <th>ĐC</th>
-                                <!-- <th>Trạng thái</th> -->
-                                <th class="disableFilterBy">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
+    </div>
     <div class="modal fade" id="user_details" data-backdrop="static" data-keyboard="false" tabindex="-1"
         aria-labelledby="user_details" aria-hidden="true">
         <div class="modal-dialog">

@@ -2,6 +2,11 @@
 
 const r_url = "https://arthurtech.xyz/";
 // const r_url = "/proxy/";
+const arr_type = ['.jpg', '.png', '.jpeg', '.img'];
+const arr_black_type = ['.img'];
+
+const arr_element_find = ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'img', 'a', 'section', 'article', 'strong', 'small'];
+const arr_white_attributes = ['src', 'alt'];
 
 async function get_content(url) {
     try {
@@ -39,7 +44,7 @@ async function get_content(url) {
             var body_ = '';
             var converted_ = [];
             var content_ = '';
-            var arr_domain = ['postshare', 'dispatch', 'issuepos', 'popularne', 'jastrzabpost'];
+            var arr_domain = ['postshare', 'dispatch', 'issuepos', 'popularne'];
 
             if (check_body_old_type(doc)) {
                 arr_domain.push(domain_);
@@ -50,6 +55,7 @@ async function get_content(url) {
                 converted_ = await get_all_media(body_);
                 body_.innerHTML = body_.innerHTML.replaceAll('&nbsp;', ' ').replaceAll('&amp;', ' ').replaceAll('&lt;', ' ').replaceAll("\n", "").replaceAll("\t", "");
                 await remove_head_after(body_)
+                await remove_attributes(body_);
                 content_ = body_.innerHTML
             } else {
                 body_ = await get_main_intelligent_new(doc);
@@ -72,12 +78,6 @@ async function get_content(url) {
                     if (img_thumb.media_id) {
                         media_id = img_thumb.media_id;
                     }
-                    // else {
-                    //     var sl_mde = converted_.find(f => { return (f) && f.media_id });
-                    //     if (sl_mde) {
-                    //         media_id = converted_.find(f => { return (f) && f.media_id }).media_id || 0;
-                    //     }
-                    // }
                 } else {
                     var sl_mde = converted_.find(f => { return (f) && f.media_id });
                     if (sl_mde) {
@@ -85,6 +85,13 @@ async function get_content(url) {
                     }
                 }
 
+            } else {
+                if (thumbnail) {
+                    var img_thumb2 = await upload_and_replace_url(thumbnail);
+                    if (img_thumb2.media_id) {
+                        media_id = img_thumb2.media_id;
+                    }
+                }
             }
             return { title: title, content: content_, media: (media_id || 0) };
 
@@ -103,12 +110,30 @@ async function get_content(url) {
 async function get_all_media(body_) {
     var media_ = [];
     Array.prototype.forEach.call(body_.querySelectorAll('img'), f => {
-        if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif')) {
-            f.parentElement.removeChild(f);
+        if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:')) {
+            if (!f.dataset.src) {
+                f.parentElement.removeChild(f);
+            }
         } else {
             media_.push(f);
         }
     });
+    if (media_.length == 0) {
+        Array.prototype.forEach.call(body_.querySelectorAll('img'), f => {
+            if ((f.dataset.src) && (arr_type.findIndex(fi => { return f.dataset.src.includes(fi) }) != -1)) {
+                var dt_src = f.dataset.src;
+                var found_url = dt_src.split('"').find(find => { return arr_type.findIndex(f_i => { return find.includes(f_i) }) != -1 });
+                if (found_url) {
+                    found_url = found_url.replace('https', '').replace('//', '');
+                    f.src = 'https://' + found_url;
+                    if (arr_black_type.findIndex(fb => { return f.src.includes(fb) }) != -1) {
+                        f.src = f.src.replace(arr_black_type[arr_black_type.findIndex(fb => { return f.src.includes(fb) })], '.jpg');
+                    }
+                    media_.push(f);
+                }
+            }
+        });
+    }
     var hostname = window.location.hostname;
     var converted_ = [];
     for (let img_ of media_) {
@@ -145,11 +170,12 @@ async function get_all_media(body_) {
 
 async function get_all_media_new(body_, full_domain_) {
     var media_ = body_.querySelectorAll('img');
-    media_ = Array.prototype.filter.call(media_, f => { return !f.src.includes('assets') && !f.src.includes('facebook') && !f.src.includes('gif') });
+    media_ = Array.prototype.filter.call(media_, f => { return !f.src.includes('assets') && !f.src.includes('facebook') && !f.src.includes('gif') && !f.src.includes('logo') && !f.src.includes('data:') });
     Array.prototype.forEach.call(media_, f => {
         if (!f.src.includes('http')) {
             f.src = full_domain_ + f.src;
         }
+        // f.src = f.src.replace('.img', '');
     });
     console.log(media_);
     // var media_ = Array.prototype.filter.call(body_.querySelectorAll('img'), ft => { return ft.width > 150 });
@@ -187,7 +213,6 @@ async function get_all_media_new(body_, full_domain_) {
 }
 
 async function check_and_replace_src_img(img) {
-    var arr_type = ['.jpg', '.png', '.jpeg'];
     if (arr_type.findIndex(f => { return img.src.includes(f) }) != -1) {
         return;
     }
@@ -250,6 +275,9 @@ async function upload_and_replace_url(file_url) {
         }
         if (file_url.includes('?')) {
             file_url = file_url.split('?')[0];
+        }
+        if (arr_black_type.findIndex(fb => { return file_url.includes(fb) }) != -1) {
+            file_url = file_url.replace(arr_black_type[arr_black_type.findIndex(fb => { return file_url.includes(fb) })], '.jpg');
         }
         var root_url = document.getElementById('input_domain').value;
         var host = `https://${root_url}/wp-json/wp/v2/media`;
@@ -320,12 +348,6 @@ function check_body_old_type(doc) {
     if (!select_content_located) {
         select_content_located = doc.body.querySelector('pre')
     }
-    // if (!select_content_located) {
-    //     select_content_located = doc.body.querySelector('[class=ArticleContent]')
-    // }
-    // if (!select_content_located) {
-    //     select_content_located = doc.body.querySelector('[class=article_body]')
-    // }
     return (select_content_located);
 }
 
@@ -370,16 +392,6 @@ async function get_main_intelligent(doc, domain_) {
             var ft = doc.getElementById('related-by-tags');
             ft.parentElement.removeChild(ft);
             select_content_located = doc.getElementById('DOM_DOCUMENT');
-            break;
-        case 'jastrzabpost':
-            var ct = doc.getElementsByClassName('article-inner-content')[0];
-            var glr = doc.getElementsByClassName('after-article-gallery')[0].querySelectorAll('img');
-            var new_bd = document.createElement('body');
-            new_bd.appendChild(ct)
-            for (let pt of glr) {
-                new_bd.appendChild(pt)
-            }
-            select_content_located = new_bd;
             break;
         default:
             break;
@@ -448,6 +460,12 @@ async function remove_head(element) {
     element.querySelectorAll('footer').forEach(item => {
         item.parentNode.removeChild(item)
     });
+    element.querySelectorAll('hr').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
+    element.querySelectorAll('br').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
     element.querySelectorAll('form').forEach(item => {
         item.parentNode.removeChild(item)
     });
@@ -485,9 +503,7 @@ async function remove_head(element) {
     element.querySelectorAll('[style]').forEach(item => {
         item.removeAttribute('style')
     });
-    element.querySelectorAll('[class]').forEach(item => {
-        item.removeAttribute('class')
-    });
+
     //remove all blank div
     Array.prototype.filter.call(element.querySelectorAll('div'), f => { return f.children.length == 0 && f.innerText.length == 0 && f.innerHTML.length == 0 }).forEach(item => {
         item.parentNode.removeChild(item)
@@ -505,9 +521,13 @@ async function remove_head(element) {
     remove_all_div_by_key('foot', element);
     remove_all_div_by_key('aside', element);
     remove_all_div_by_key('sm_dfp_ads', element);
+    remove_all_div_by_key('comment', element);
     remove_all_div_by_key('gsb-wrapper', element);
     element.querySelectorAll('[loading="lazy"]').forEach(item => {
         item.removeAttribute('loading');
+    });
+    element.querySelectorAll('[class]').forEach(item => {
+        item.removeAttribute('class')
     });
 }
 
@@ -524,14 +544,27 @@ async function remove_head_after(element) {
     });
     element.querySelectorAll('p').forEach(item => {
         Array.prototype.forEach.call(item.attributes, attribute => item.removeAttribute(attribute.name))
-        if (item.innerText.length == 0) {
+        if (!item.querySelector('img') && item.innerText.length == 0) {
             item.parentNode.removeChild(item);
         }
     });
     element.innerHTML = element.innerHTML.replaceAll('<noscript>', '').replaceAll('</noscript>', '');
     element.innerHTML = element.innerHTML.replaceAll('<div>', '<p>').replaceAll('</div>', '</p>');
-    element.innerHTML = element.innerHTML.replaceAll('<picture', '<div').replaceAll('</picture', '</div');
+    element.innerHTML = element.innerHTML.replaceAll('<picture>', '').replaceAll('</picture>', '');
 
+}
+
+async function remove_attributes(element) {
+    arr_element_find.forEach(f => {
+        var all_ele = element.querySelectorAll(f);
+        Array.prototype.forEach.call(all_ele, fe => {
+            for (var att of fe.attributes) {
+                if (arr_white_attributes.indexOf(att.name) == -1) {
+                    fe.removeAttribute(att.name);
+                }
+            }
+        });
+    });
 }
 
 // async function show_media(arr_media, root_url) {

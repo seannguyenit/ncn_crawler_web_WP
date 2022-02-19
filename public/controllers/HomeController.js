@@ -11,6 +11,12 @@ module.exports = {
     content:  (req, res) => {
         res.sendFile(path.join(__dirname,'../../view/get_content.html'))
     },
+    filter_str:  (req, res) => {
+        res.sendFile(path.join(__dirname,'../../view/filter_str.html'))
+    },
+    dis_str:  (req, res) => {
+        res.sendFile(path.join(__dirname,'../../view/dis_str.html'))
+    },
     user:  (req, res) => {
         res.sendFile(path.join(__dirname,'../../view/user.html'))
     },

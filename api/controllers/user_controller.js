@@ -87,9 +87,9 @@ module.exports = {
     },
     logout: (req, res) => {
         let data = req.body;
-        let sql = 'CALL `logout`(?,?)'
+        let sql = 'CALL `logout`(?)'
         try {
-            db.query(sql, [data.user, data.token], (err, response) => {
+            db.query(sql, [data.user], (err, response) => {
                 if (err) throw err
                 // console.log(response);
                 res.json({ ok: 1 });

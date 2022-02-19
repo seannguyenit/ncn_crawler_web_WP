@@ -15,78 +15,70 @@
 </head>
 
 <body class="body-bg-custom">
-    <!-- Top Bar -->
-    <nav class="navbar navbar-expand-sm navbar-light bg-main-color">
-        <div class="container-fluid">
+    <div class="col-12 d-flex">
+        <div class="col-3">
             <a class="navbar-brand com-name" href="/home/notice">ncnmediacontent</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_menu_nav"
-                aria-controls="main_menu_nav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="main_menu_nav" style="justify-content: space-between;">
-                <div id="main_menu" class="navbar-nav">
-                    <a class="nav-link active title-nav" aria-current="page" href="/home/notice">Thông báo</a>
-                    <a class="nav-link active title-nav" aria-current="page" href="/home/getcontent">Lấy nội dung</a>
-
-                </div>
-                <div class="navbar-nav user-info">
-                    <div class="nav-link active" aria-current="page"><a id="current_username">USER</a> <a
-                            class="nav-link active" aria-current="page" onclick="acc_logout()" href="#">(Đăng xuất)</a>
-                    </div>
-                </div>
+            <div id="main_menu_nav">
+                <ul id="main_menu" class="list-group">
+                    <li class="list-group-item"><a>Item</a>
+                        <ul class="list-group">
+                            <li class="list-group-item active">Active item</li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
-    </nav>
-    <section>
-        <div class="col-12">
-            <div class="col-12 p-2">
-                <div class="d-flex">
-                    <div class="col-12">
-                        <label for="input_link" class="form-label">Link :</label>
-                        <textarea rows="5" type="text" class="form-control" id="input_link"></textarea>
-                        <!-- <div class="valid-feedback">
-                            Looks good!
-                        </div> -->
-                        <label for="input_link" class="form-label">Tên miền WP :</label>
-                        <input type="text" class="form-control" id="input_domain"></input>
-                        <label for="input_link" class="form-label">user WP :</label>
-                        <input type="text" class="form-control" id="input_user"></input>
-                        <label for="input_link" class="form-label">Mật khẩu API WP :</label>
-                        <input type="password" class="form-control" id="input_pass"></input>
+        <div class="col-9">
+            <div class="col-12">
+                <div class="col-12 p-2">
+                    <div class="d-flex">
+                        <div class="col-12">
+                            <label for="input_link" class="form-label">Link :</label>
+                            <textarea rows="5" type="text" class="form-control" id="input_link"></textarea>
+                            <!-- <div class="valid-feedback">
+                                Looks good!
+                            </div> -->
+                            <label for="input_link" class="form-label">Tên miền WP :</label>
+                            <input type="text" class="form-control" id="input_domain"></input>
+                            <label for="input_link" class="form-label">user WP :</label>
+                            <input type="text" class="form-control" id="input_user"></input>
+                            <label for="input_link" class="form-label">Mật khẩu API WP :</label>
+                            <input type="password" class="form-control" id="input_pass"></input>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-12">
-                <div style="text-align: center;">
-                    <button onclick="run_scripts()" class="btn btn-primary">Bắt đầu cào dữ liệu</button>
-                    <button onclick="clear_all()" class="btn btn-warning">Clear</button>
-                    <button onclick="test_data()" class="btn btn-warning">Test data</button>
-                    <!-- <a href="../client/client_cnc_media.zip" class="btn btn-warning">Tải tiện ích chrome</a> -->
-                </div>
-            </div>
-            <hr />
-            <div class="col-md-12 d-flex flex-wrap">
                 <div class="col-md-12">
-                    <table id="main_table" class="table table-bordered" style="color: white !important;">
-                        <thead>
-                            <th>STT</th>
-                            <th>link</th>
-                            <th>link bài viết</th>
-                            <th>Trạng thái</th>
-                        </thead>
-                        <tbody>
-                            <!-- <tr>
-                                <td>dasd</td>
-                                <td>asdasd</td>
-                                <td>asdasdas</td>
-                                <td>asdasdas</td>
-                            </tr> -->
-                        </tbody>
-                    </table>
+                    <div style="text-align: center;">
+                        <button onclick="run_scripts()" class="btn btn-primary">Bắt đầu cào dữ liệu</button>
+                        <button onclick="clear_all()" class="btn btn-warning">Clear</button>
+                        <button onclick="test_data()" class="btn btn-warning">Test data</button>
+                        <!-- <a href="../client/client_cnc_media.zip" class="btn btn-warning">Tải tiện ích chrome</a> -->
+                    </div>
+                </div>
+                <hr />
+                <div class="col-md-12 d-flex flex-wrap">
+                    <div class="col-md-12">
+                        <table id="main_table" class="table table-bordered" style="color: white !important;">
+                            <thead>
+                                <th>STT</th>
+                                <th>link</th>
+                                <th>link bài viết</th>
+                                <th>Trạng thái</th>
+                            </thead>
+                            <tbody>
+                                <!-- <tr>
+                                    <td>dasd</td>
+                                    <td>asdasd</td>
+                                    <td>asdasdas</td>
+                                    <td>asdasdas</td>
+                                </tr> -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
     <button id="sp_ex" style="display: none;" data-url="" data-stt="0" data-index=""></button>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

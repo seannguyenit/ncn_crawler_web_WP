@@ -17,6 +17,10 @@ module.exports = function (app) {
     .get(homeCtrl.notice);
   app.route('/home/get_content')
     .get(homeCtrl.content);
+    app.route('/home/filter_string')
+    .get(homeCtrl.filter_str);
+    app.route('/home/dis_string')
+    .get(homeCtrl.dis_str);
   app.route('/home/users')
     .get(homeCtrl.user);
 };
