@@ -11,10 +11,11 @@ async function go_() {
     input_.forEach(f => {
         var arr_row = f.split(char_);
         var str = '';
+        var arr = [];
         for (var i of index_arr) {
-            str += `${arr_row[i - 1] || ''} ${char_} `
+            arr.push(arr_row[i - 1] || '');
         }
-        str += "\n";
+        str += arr.join(char_) + "\n";
         ele.value += str;
     });
 }
