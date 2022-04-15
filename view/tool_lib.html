@@ -45,11 +45,13 @@
                                     <th class="disableFilterBy">Tải về</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="data_tb">
                                 <tr>
                                     <td>1</td>
                                     <td>Tool quản lý và tương tác fb</td>
-                                    <td><a class="btn btn-primary" target="_blank" href="https://drive.google.com/file/d/1o0lFE_yN_KeycGCzQ_Se2HShW3d7OYVx/view"> 1.0 </a></td>
+                                    <td><a class="btn btn-primary" target="_blank"
+                                            href="https://drive.google.com/file/d/1o0lFE_yN_KeycGCzQ_Se2HShW3d7OYVx/view">
+                                            1.0 </a></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -74,5 +76,23 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 </body>
+
+<script>
+    init_page();
+    async function init_page() {
+        var place = document.getElementById('data_tb');
+        place.innerHTML = '';
+        var data = await tool_get_all();
+        if (data) {
+            Array.from(data).forEach(f => {
+                place.innerHTML += ` <tr>
+                    <td>${Array.from(data).indexOf(f) + 1}</td>
+                    <td>${f.name}</td>
+                    <td><a class="btn btn-primary" target="_blank" href="${f.link}"> Download </a></td>
+                    </tr>`
+            });
+        }
+    }
+</script>
 
 </html>

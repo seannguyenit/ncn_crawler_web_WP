@@ -32,15 +32,44 @@
             <div class="col-12">
                 <div class="container">
                     <div class="col-12 p-5">
-                        <h2>Thông báo từ hệ thống: Chúc các bạn 1 ngày làm việc vui vẻ !</h2>
+                        <h2 id="notice">Thông báo từ hệ thống: Chúc các bạn 1 ngày làm việc vui vẻ !</h2>
+                        <button id="bt_edit" style="display: none;" class="btn btn-primary" onclick="open_modal()">Thay đổi</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+ 
+    <!-- Modal -->
+    <div class="modal fade" id="modal_notice" tabindex="-1" role="dialog" aria-labelledby="model_notice" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notice</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                </div>
+                <div class="modal-body d-flex flex-wrap">
+                    <input hidden id="type" value="notice" />
+                    <div class="col-md-12">
+                        <label for="content" class="form-label">Thông báo</label>
+                        <textarea type="text" class="form-control" id="content" rows="5"></textarea>
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button id="btn_save" onclick="save_notice()" type="button" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="../js/authen_fuction.js"></script>
     <script src="../js/permission.js"></script>
+    <script src="../js/notice.js"></script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>User</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body class="body-bg-custom">
+    <div class="col-12 d-flex">
+        <div class="col-3">
+            <a class="navbar-brand com-name" href="/home/notice">ncnmedia</a>
+            <div id="main_menu_nav">
+                <ul id="main_menu" class="list-group">
+                    <li class="list-group-item"><a>Item</a>
+                        <ul class="list-group">
+                            <li class="list-group-item active">Active item</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="col-12">
+                <div class="container">
+                    <div class="col-12 pt-5 pb-2">
+                        <button onclick="open_modal(0)" class="btn btn-primary">Tạo mới</button>
+                    </div>
+                    <div class="col-12">
+                        <table id="table_data" class="tablemanager table table-striped table-bordered table-sm"
+                            cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>stt</th>
+                                    <th>tool</th>
+                                    <th>link</th>
+                                    <th class="disableFilterBy">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="user_details" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="user_details" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_title">Thông tin tool</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body d-flex flex-wrap">
+                    <input hidden id="user_id" value="0" />
+                    <div class="col-md-12">
+                        <label for="name" class="form-label">name</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="link" class="form-label">link</label>
+                        <input type="text" class="form-control" id="link" required>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex" style="justify-content: space-between;"><button type="button"
+                        class="btn btn-primary" onclick="save_()" data-dismiss="modal">Save</button><button
+                        type="button" class="btn btn-secondary" data-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="../js/authen_fuction.js"></script>
+    <script src="../js/tool_manager.js"></script>
+    <script src="../js/helper_manager.js"></script>
+    <script src="../js/permission.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+<script>
+    let main_table = document.getElementById('table_data').children[1];
+    init_users();
+    async function init_users() {
+        main_table.innerHTML = '';
+        var dt = await tool_get_all();
+        if (dt) {
+            dt.forEach(item => {
+                main_table.innerHTML += `
+                <tr>
+                    <td>${dt.indexOf(item) + 1}</td>    
+                    <td>${item.name}</td>    
+                    <td>${item.link}</td>
+                    <td>
+                        ${button_action_tool(item.id, 'open_modal', ['btn', 'btn-sm', 'btn-primary'], 'edit')}
+                        ${button_action_tool(item.id, 'del_tool', ['btn', 'btn-sm', 'btn-danger'], 'delete')}
+                    </td>
+                </tr>
+            `;
+            });
+            smoothy_ui_table();
+        }
+    }
+    // $(document).ready(function () {
+    //     $("#user_details").on('show.bs.modal', function () {
+    //         alert(params);
+    //     });
+    // });
+    async function open_modal(params) {
+        if (params != 0) {
+            var detail_dt = await tool_get_detail(params);
+            $('#user_id').val(detail_dt.id || 0);
+            $('#name').val(detail_dt.name || '');
+            $('#link').val(detail_dt.link || '');
+        } else {
+            $('#user_id').val(0);
+            $('#name').val('');
+            $('#link').val('');
+
+        }
+        $('#user_details').modal('show');
+
+    }
+    async function save_() {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
+            return;
+        }
+        var id = $("#user_id").val()
+        var name = $("#name").val()
+        var link = $("#link").val()
+
+        var url = `/api/tool_lib`;
+        var meth = 'POST';
+        const formData = new FormData();
+
+        if (id != 0) {
+            meth = 'PUT';
+            url = `/api/tool_lib/${id}`;
+        }
+        var data = { name: name, link: link };
+
+        let rs = await tool_save(url, data, meth);
+
+        init_users();
+    };
+
+    async function del_tool(id) {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
+            return;
+        }
+        let rs = await tool_del(id);
+        // const formData = new FormData();
+        // console.log('Success:', rs);
+        init_users();
+    }
+</script>
+
+</html>

@@ -32,5 +32,19 @@ module.exports = {
             if (err) throw err
             res.json({ message: 'Insert success!' })
         })
-    }
+    },
+    get_web_info: (req, res) => {
+        let sql = 'select * from web_info where type = ? limit 1'
+        db.query(sql, [req.params.type], (err, response) => {
+            if (err) throw err
+            res.json(response)
+        })
+    },
+    update_web_info: (req, res) => {
+        let sql = 'update web_info set ? where type = ? limit 1'
+        db.query(sql, [req.body, req.params.type], (err, response) => {
+            if (err) throw err
+            res.json(response)
+        })
+    },
 }

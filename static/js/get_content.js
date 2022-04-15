@@ -27,20 +27,10 @@ async function get_content(url) {
             var title = (og_title) ? doc.querySelector('[property="og:title"]').content : null;
             if (!title) {
                 var sub_title = doc.title;
-                if (sub_title.indexOf(' - ') > -1) {
-                    sub_title = sub_title.split(' - ').slice(0, sub_title.split(' - ').length - 1)[0];
-                }
-                if (sub_title.indexOf(' – ') > -1) {
-                    sub_title = sub_title.split(' – ').slice(0, sub_title.split(' – ').length - 1)[0];
-                }
-                if (sub_title.indexOf(' | ') > -1) {
-                    sub_title = sub_title.split(' | ').slice(0, sub_title.split(' | ').length - 1)[0];
-                }
+                sub_title = remove_author_in_title(sub_title);
                 title = sub_title;
             } else {
-                if (title.indexOf(' | ') > -1) {
-                    title = title.split(' | ')[0];
-                }
+                title = remove_author_in_title(title);
             }
 
             var og_img = doc.querySelector('[property="og:image"]');
@@ -112,6 +102,19 @@ async function get_content(url) {
     // return { error: 1 };
 }
 
+
+function remove_author_in_title(sub_title) {
+    if (sub_title.indexOf(' - ') > -1) {
+        sub_title = sub_title.split(' - ').slice(0, sub_title.split(' - ').length - 1)[0];
+    }
+    if (sub_title.indexOf(' – ') > -1) {
+        sub_title = sub_title.split(' – ').slice(0, sub_title.split(' – ').length - 1)[0];
+    }
+    if (sub_title.indexOf(' | ') > -1) {
+        sub_title = sub_title.split(' | ').slice(0, sub_title.split(' | ').length - 1)[0];
+    }
+    return sub_title;
+}
 
 async function get_all_media(body_) {
     var media_ = [];
@@ -526,12 +529,18 @@ async function remove_head(element) {
     remove_all_div_by_key('comment', element);
     remove_all_div_by_key('gsb-wrapper', element);
     remove_all_div_by_key('related-', element);
+    remove_all_div_by_key('author-', element);
     remove_all_div_by_key('sharing-', element);
     element.querySelectorAll('[loading="lazy"]').forEach(item => {
         item.removeAttribute('loading');
     });
     element.querySelectorAll('[class]').forEach(item => {
         item.removeAttribute('class')
+    });
+    Array.from(element.querySelectorAll('section')).forEach((item) => {
+        var new_p = document.createElement('p');
+        new_p.innerHTML = item.innerHTML;
+        item.replaceWith(new_p);
     });
 }
 
