@@ -20,6 +20,9 @@ module.exports = {
     user:  (req, res) => {
         res.sendFile(path.join(__dirname,'../../view/user.html'))
     },
+    tool_lib:  (req, res) => {
+        res.sendFile(path.join(__dirname,'../../view/tool_lib.html'))
+    },
     // get_partial: (req,res)=>{
     //     let action = [req.params.action];
     //     res.sendFile(path.join(__dirname,`../../view/partial/${action}.html`))
