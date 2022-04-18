@@ -52,6 +52,7 @@
                         <button onclick="run_scripts()" class="btn btn-primary">Bắt đầu cào dữ liệu</button>
                         <button onclick="clear_all()" class="btn btn-warning">Clear</button>
                         <button onclick="test_data()" class="btn btn-warning">Test data</button>
+                        <button onclick="bt_add_click()" class="btn btn-warning">Lưu mật khẩu</button>
                         <!-- <a href="../client/client_cnc_media.zip" class="btn btn-warning">Tải tiện ích chrome</a> -->
                     </div>
                 </div>
@@ -76,6 +77,30 @@
                         </table>
                     </div>
                 </div>
+                <hr />
+                <div class="col-md-12 d-flex flex-wrap">
+                    <div class="col-md-12">
+                        <table class="table table-bordered" style="color: white !important;">
+                            <thead>
+                                <th>STT</th>
+                                <th>tên miền</th>
+                                <th>user</th>
+                                <th>thao tác</th>
+                                <!-- <th>mật khẩu</th> -->
+                            </thead>
+                            <tbody id="table_user">
+                                <!-- <tr>
+                                    <td>dasd</td>
+                                    <td>asdasd</td>
+                                    <td>asdasdas</td>
+                                    <td>asdasdas</td>
+                                </tr> -->
+                            </tbody>
+                        </table>
+
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -90,6 +115,7 @@
         crossorigin="anonymous"></script>
     <script src="../js/authen_fuction.js"></script>
     <script src="../js/get_content.js"></script>
+    <script src="../js/data_m.js"></script>
     <script src="../js/permission.js"></script>
     <script>
         var cr_links = [];
