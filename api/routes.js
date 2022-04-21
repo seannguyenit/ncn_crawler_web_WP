@@ -2,6 +2,7 @@
 module.exports = function (app) {
   let accCtrl = require('./controllers/user_controller');
   let menuCtrl = require('./controllers/menu_controller');
+  let fake_requestCtrl = require('./controllers/fake_request_controller');
   let toolCtrl = require('./controllers/tool_controller');
   // todoList Routes
   app.route('/api/login')
@@ -41,5 +42,11 @@ module.exports = function (app) {
   app.route('/api/web_info/:type')
     .get(menuCtrl.get_web_info)
     .post(menuCtrl.update_web_info);
+
+  app.route('/api/fproxy')
+    .post(fake_requestCtrl.get_url);
+    
+  app.route('/api/up_image_fromSV')
+  .post(fake_requestCtrl.post_image);
 };
 

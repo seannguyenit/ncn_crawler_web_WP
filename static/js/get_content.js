@@ -1,6 +1,7 @@
 'use strict'
 
-const r_url = "https://arthurtech.xyz/";
+// const r_url = "https://arthurtech.xyz/";
+const r_url = "/api/fproxy";
 // const r_url = "/proxy/";
 const arr_type = ['.jpg', '.png', '.jpeg', '.img'];
 const arr_black_type = ['.img'];
@@ -11,10 +12,20 @@ const arr_white_attributes = ['src', 'alt'];
 async function get_content(url) {
     try {
 
-        return await fetch(r_url + url).then(function (response) {
+        return await fetch(
+            r_url,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: url })
+            }
+        ).then(function (response) {
             // The API call was successful!
-            return response.text();
-        }).then(async function (html) {
+            return response.json();
+        }).then(async function (rs) {
+            var html = rs.result;
             var domain_ = get_domain(url);
 
             // Convert the HTML string into a document object
@@ -280,27 +291,13 @@ async function upload_and_replace_url(file_url) {
         var host = `https://${root_url}/wp-json/wp/v2/media`;
         var user = document.getElementById('input_user').value;
         var pass = document.getElementById('input_pass').value;
-        var file_name = file_url.split('/').at(-1);
-        var file_ = await get_blob_from_url(r_url + file_url);
-        const formData = new FormData();
-        formData.append("file", file_, file_name);
+        // var file_name = file_url.split('/').at(-1);
+        // var file_ = await get_blob_from_url();
+        // const formData = new FormData();
+        // formData.append("file", file_, file_name);
 
         var au_str = `Basic ${encode_base64(user, pass)}`;
-        var data_rs = await fetch(host, {
-            body: formData,
-            headers: {
-                'Content-Disposition': `attachment; filename=${file_name}`,
-                Authorization: au_str
-            },
-            method: "POST"
-        })
-            .then(response => response.json())
-            .then(result => {
-                return result;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        var data_rs = await post_url_image_fromSV(file_url,host,au_str);
         if (data_rs) {
             var thumb = data_rs.source_url;
             if (data_rs.media_details && data_rs.media_details.sizes && data_rs.media_details.sizes.thumbnail) {
@@ -315,8 +312,38 @@ async function upload_and_replace_url(file_url) {
     return null;
 }
 
+async function post_url_image_fromSV(url_image, url_post, key) {
+    return await fetch('/api/up_image_fromSV', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url_image: url_image, url_post: url_post, key: key })
+    })
+        .then(response => response.json())
+        .then(result => {
+            return result;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
 async function get_blob_from_url(url_) {
-    let response = await fetch(url_).then(r => r.blob());
+    let response = await fetch(r_url,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: url_ })
+        }
+    ).then(function (response) {
+        // The API call was successful!
+        return response.json();
+    }).then((rs) => {
+        return new Blob([rs.result]);
+    });
     return response;
 }
 
@@ -329,7 +356,7 @@ async function get_content_by_plugin(url, index) {
     var count = 0;
     // console.time()
     while (document.getElementById('sp_ex').dataset.stt != "1" && count < 20) {
-        let w = await waitingForNext(2000);
+        await waitingForNext(2000);
         count++;
     }
     // console.timeEnd()
