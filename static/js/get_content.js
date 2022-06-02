@@ -1,5 +1,5 @@
 'use strict'
-
+var is_test = 0;
 // const r_url = "https://arthurtech.xyz/";
 const r_url = "/api/fproxy";
 // const r_url = "/proxy/";
@@ -46,6 +46,16 @@ async function get_content(url) {
 
             var og_img = doc.querySelector('[property="og:image"]');
             var thumbnail = (og_img) ? og_img.content : null;
+            if (!thumbnail) {
+                var tg_div = Array.prototype.filter.call(doc.querySelectorAll('div'), f => {
+                    return (Array.prototype.findIndex.call(f.classList, fi => {
+                        return fi.includes('featured-image')
+                    }) != -1) || (f.id.toString().includes('featured-image'))
+                })[0];
+                if (tg_div && (tg_div.querySelector('img') || tg_div.querySelector('image'))) {
+                    thumbnail = (tg_div.querySelector('img') || tg_div.querySelector('image')).src;
+                }
+            }
             var body_ = '';
             var converted_ = [];
             var content_ = '';
@@ -55,39 +65,44 @@ async function get_content(url) {
                 arr_domain.push(domain_);
             }
 
-            if (arr_domain.indexOf(domain_) != -1) {
-                body_ = await get_main_intelligent(doc, domain_);
-                converted_ = await get_all_media(body_);
-                body_.innerHTML = body_.innerHTML.replaceAll('&nbsp;', ' ').replaceAll('&amp;', ' ').replaceAll('&lt;', ' ').replaceAll("\n", "").replaceAll("\t", "");
-                await remove_head_after(body_)
-                await remove_attributes(body_);
-                content_ = body_.innerHTML
-            } else {
-                body_ = await get_main_intelligent_new(doc);
-                converted_ = await get_all_media_new(body_, 'https://' + doc.domain);
-                await remove_attributes(body_);
-                content_ = body_.innerText;
-                content_ = '<p>' + content_ + '</p>'
-                if (converted_) {
-                    for (var i of converted_) {
-                        if ((i) && (!i.is_del) && ((i.media_id || 0) > 0)) {
-                            content_ = insert_img_to_text(content_, i);
-                        }
-                    }
-                }
-            }
+            // if (arr_domain.indexOf(domain_) != -1) {
+            body_ = await get_main_intelligent(doc, domain_);
+            converted_ = await get_all_media(body_);
+            await remove_img_null(body_);
+            body_.innerHTML = body_.innerHTML.replaceAll('&nbsp;', '').replaceAll('&amp;', '').replaceAll('&lt;', ' ').replaceAll("\n", "").replaceAll("\t", "").replaceAll("&quot;", "");
+            await remove_head_after(body_)
+            await remove_attributes(body_);
+            content_ = body_.innerHTML
+            // } else {
+            //     body_ = await get_main_intelligent_new(doc);
+            //     converted_ = await get_all_media_new(body_, 'https://' + doc.domain);
+            //     await remove_img_null(body_);
+            //     await remove_attributes(body_);
+            //     content_ = body_.innerText.replaceAll("&quot;", "");
+            //     content_ = '<p>' + content_ + '</p>'
+            //     if (converted_) {
+            //         for (var i of converted_) {
+            //             if ((i) && (!i.is_del) && ((i.media_id || 0) > 0)) {
+            //                 content_ = insert_img_to_text(content_, i);
+            //             }
+            //         }
+            //     }
+            // }
             var media_id = 0;
-            content_ = content_.replaceAll(domain_, document.getElementById('input_domain').value.split('.')[0]);
+            var thumb_url = ""
+            // content_ = content_.replaceAll(domain_, document.getElementById('input_domain').value.split('.')[0]);
             if (converted_.length > 0) {
                 if (thumbnail) {
                     var img_thumb = await upload_and_replace_url(thumbnail);
                     if (img_thumb.media_id) {
                         media_id = img_thumb.media_id;
+                        thumb_url = img_thumb.converted_url;
                     }
                 } else {
                     var sl_mde = converted_.find(f => { return (f) && f.media_id });
                     if (sl_mde) {
                         media_id = converted_.find(f => { return (f) && f.media_id }).media_id || 0;
+                        thumb_url = converted_.find(f => { return (f) && f.media_id }).converted_url || "";
                     }
                 }
 
@@ -96,11 +111,22 @@ async function get_content(url) {
                     var img_thumb2 = await upload_and_replace_url(thumbnail);
                     if (img_thumb2.media_id) {
                         media_id = img_thumb2.media_id;
+                        thumb_url = img_thumb2.converted_url;
                     }
                 }
             }
             title = title.replaceAll(domain_, '');
-            return { title: title, content: content_, media: (media_id || 0) };
+            // console.log(content_);
+            try {
+                content_ = decodeURIComponent(content_);
+            } catch (error) {
+                console.log("Error URI !");
+            }
+            content_ = content_.replaceAll(/<!--(.*?)-->/gm, "");
+            content_ = content_.replaceAll(/&nbsp;/g, '');
+            content_ = content_.replaceAll('&gt;', '');
+            content_ = content_.replaceAll('  ', '');
+            return { title: title, content: content_, media: (media_id || 0), thumb_url: thumb_url };
 
         }).catch(function (err) {
             // There was an error
@@ -124,17 +150,26 @@ function remove_author_in_title(sub_title) {
     if (sub_title.indexOf(' | ') > -1) {
         sub_title = sub_title.split(' | ').slice(0, sub_title.split(' | ').length - 1)[0];
     }
+    if (sub_title.indexOf(' @') > -1) {
+        sub_title = sub_title.split(' @').slice(0, sub_title.split(' @').length - 1)[0];
+    }
+    if (sub_title.indexOf('：') > -1) {
+        sub_title = sub_title.split('：').slice(0, sub_title.split('：').length - 1)[0];
+    }
     return sub_title;
 }
 
 async function get_all_media(body_) {
     var media_ = [];
     Array.prototype.forEach.call(body_.querySelectorAll('img'), f => {
-        if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:')) {
+        if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:') || f.src.includes('.svg')) {
             if (!f.dataset.src) {
                 f.parentElement.removeChild(f);
             }
         } else {
+            if(f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)){
+                f.src = f.dataset.original;
+            }
             media_.push(f);
         }
     });
@@ -278,17 +313,37 @@ function insert_img_to_text(content_, img) {
 
 async function upload_and_replace_url(file_url) {
     try {
-        if (file_url.indexOf('http://') > -1) {
-            file_url = file_url.replace('http://', '');
+        file_url = decodeURIComponent(file_url);
+        if (file_url.lastIndexOf('https') > 0) {
+            var s = file_url.slice(file_url.lastIndexOf('https'));
+            if (s.indexOf('?') != -1) {
+                s = s.slice(0, s.indexOf('?'));
+            }
+            if (s.indexOf('&') != -1) {
+                s = s.slice(0, s.indexOf('&'));
+            }
+            file_url = s;
+        }
+        if (file_url.indexOf('http') == -1) {
+            file_url = 'https://' + file_url;
+        }
+        if (file_url.indexOf(' ') > -1) {
+            file_url = file_url.split(' ')[0];
         }
         if (file_url.includes('?')) {
             file_url = file_url.split('?')[0];
+        }
+        if (file_url.includes('://:')) {
+            file_url = file_url.replace('://:', '://')
         }
         if (arr_black_type.findIndex(fb => { return file_url.includes(fb) }) != -1) {
             file_url = file_url.replace(arr_black_type[arr_black_type.findIndex(fb => { return file_url.includes(fb) })], '.jpg');
         }
         var root_url = document.getElementById('input_domain').value;
         var host = `https://${root_url}/wp-json/wp/v2/media`;
+        if (is_test == 1) {
+            host = `${root_url}wp-json/wp/v2/media`;
+        }
         var user = document.getElementById('input_user').value;
         var pass = document.getElementById('input_pass').value;
         // var file_name = file_url.split('/').at(-1);
@@ -297,14 +352,20 @@ async function upload_and_replace_url(file_url) {
         // formData.append("file", file_, file_name);
 
         var au_str = `Basic ${encode_base64(user, pass)}`;
-        var data_rs = await post_url_image_fromSV(file_url,host,au_str);
-        if (data_rs) {
-            var thumb = data_rs.source_url;
-            if (data_rs.media_details && data_rs.media_details.sizes && data_rs.media_details.sizes.thumbnail) {
-                thumb = data_rs.media_details.sizes.thumbnail.source_url;
+        var data_rs;
+        data_rs = await upload_old_version(file_url, au_str, host);
+        if (!data_rs || (data_rs && data_rs.code == 'rest_upload_unknown_error')) {
+            var new_up_rs = await post_url_image_fromSV(file_url, host, au_str);
+            if (new_up_rs && new_up_rs.rs) {
+                data_rs = new_up_rs.rs;
             }
-            return { media_id: data_rs.id, root_url: file_url, converted_url: data_rs.source_url, thumbnail: thumb }
         }
+        if (!data_rs) return null;
+        var thumb = data_rs.source_url;
+        if (data_rs.media_details && data_rs.media_details.sizes && data_rs.media_details.sizes.thumbnail) {
+            thumb = data_rs.media_details.sizes.thumbnail.source_url;
+        }
+        return { media_id: data_rs.id, root_url: file_url, converted_url: data_rs.source_url, thumbnail: thumb }
     } catch (error) {
         console.log(error);
         return null;
@@ -338,11 +399,9 @@ async function get_blob_from_url(url_) {
             },
             body: JSON.stringify({ url: url_ })
         }
-    ).then(function (response) {
+    ).then(function (r) {
         // The API call was successful!
-        return response.json();
-    }).then((rs) => {
-        return new Blob([rs.result]);
+        return new File([r.result], 'abc.jpg');
     });
     return response;
 }
@@ -381,12 +440,21 @@ function check_body_old_type(doc) {
  * @returns 
  */
 async function get_main_intelligent(doc, domain_) {
-    var select_content_located = doc.body.querySelector('article');
+    var select_content_located = null;
+    if (domain_ == 'pagesix') {
+        select_content_located = doc.body.getElementsByClassName('article-header')[0];
+    }
+    if (!select_content_located) {
+        select_content_located = doc.body.querySelector('article');
+    }
     if (!select_content_located) {
         select_content_located = doc.body.querySelector('precontent')
     }
     if (!select_content_located) {
         select_content_located = doc.body.querySelector('pre')
+    }
+    if (!select_content_located) {
+        select_content_located = doc.body
     }
     // if (!select_content_located) {
     //     select_content_located = doc.body.querySelector('[class=ArticleContent]')
@@ -472,6 +540,9 @@ async function remove_head(element) {
     element.querySelectorAll('header').forEach(item => {
         item.parentNode.removeChild(item)
     });
+    element.querySelectorAll('Header').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
     element.querySelectorAll('meta').forEach(item => {
         item.parentNode.removeChild(item)
     });
@@ -479,6 +550,9 @@ async function remove_head(element) {
         item.parentNode.removeChild(item)
     });
     element.querySelectorAll('link').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
+    element.querySelectorAll('noscript').forEach(item => {
         item.parentNode.removeChild(item)
     });
     element.querySelectorAll('style').forEach(item => {
@@ -497,6 +571,9 @@ async function remove_head(element) {
         item.parentNode.removeChild(item)
     });
     element.querySelectorAll('form').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
+    element.querySelectorAll('notify').forEach(item => {
         item.parentNode.removeChild(item)
     });
     element.querySelectorAll('button').forEach(item => {
@@ -518,10 +595,22 @@ async function remove_head(element) {
     element.querySelectorAll('ul').forEach(item => {
         item.parentNode.removeChild(item)
     });
+    element.querySelectorAll('dl').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
+    element.querySelectorAll('ol').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
     element.querySelectorAll('i').forEach(item => {
         item.parentNode.removeChild(item)
     });
     element.querySelectorAll('aside').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
+    element.querySelectorAll('wp-ad').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
+    element.querySelectorAll('svg').forEach(item => {
         item.parentNode.removeChild(item)
     });
     element.querySelectorAll('source').forEach(item => {
@@ -530,6 +619,13 @@ async function remove_head(element) {
     element.querySelectorAll('figcaption').forEach(item => {
         item.parentNode.removeChild(item)
     });
+    element.querySelectorAll('time').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
+
+
+    remove_all_hidden_div(element);
+
     element.querySelectorAll('[style]').forEach(item => {
         item.removeAttribute('style')
     });
@@ -542,10 +638,12 @@ async function remove_head(element) {
     Array.prototype.filter.call(element.querySelectorAll('table'), f => { return f.innerText.length == 0 && f.innerHTML.length == 0 }).forEach(item => {
         item.parentNode.removeChild(item)
     });
+
     Array.prototype.filter.call(element.querySelectorAll('tr'), f => { return f.innerText.length == 0 && f.innerHTML.length == 0 }).forEach(item => {
         item.parentNode.removeChild(item)
     });
     remove_all_div_by_key('bottom', element);
+    remove_all_div_by_key('elementSectionHeading', element);
     remove_all_div_by_key('head', element);
     remove_all_div_by_key('nav', element);
     remove_all_div_by_key('foot', element);
@@ -555,9 +653,71 @@ async function remove_head(element) {
     remove_all_div_by_key('sm_dfp_ads', element);
     remove_all_div_by_key('comment', element);
     remove_all_div_by_key('gsb-wrapper', element);
-    remove_all_div_by_key('related-', element);
+    remove_all_div_by_key('relatedArticle', element);
+    remove_all_div_by_key('related', element);
     remove_all_div_by_key('author-', element);
+    remove_all_div_by_key('Author', element);
+    remove_all_div_by_key('carousel-', element);
     remove_all_div_by_key('sharing-', element);
+    remove_all_div_by_key('rail-body-container', element);
+    remove_all_div_by_key('read-more-container', element);
+    remove_all_div_by_key('more-on', element);
+    remove_all_div_by_key('rss_widget', element);
+    remove_all_div_by_key('nextpage', element);
+    remove_all_div_by_key('advertisement', element);
+    remove_all_div_by_key('entry__author', element);
+    remove_all_div_by_key('socialButton', element);
+    remove_all_div_by_key('clmn', element);
+    remove_all_div_by_key('modal', element);
+    remove_all_div_by_key('sidebar', element);
+    remove_all_div_by_key('btn-category', element);
+    remove_all_div_by_key('navigation', element);
+    remove_all_div_by_key('pagenation', element);
+    remove_all_div_by_key('articleRelatedPosts', element);
+    remove_all_div_by_key('postsSubHeading', element);
+    remove_all_div_by_key('rankingHeading', element);
+    remove_all_div_by_key('LinkCard', element);
+    remove_all_div_by_key('AsideArticleFocusOnModule', element);
+    remove_all_div_by_key('AsideArticleTogetherModule', element);
+    remove_all_div_by_key('btn', element);
+    remove_all_div_by_key('Button', element);
+    remove_all_div_by_key('entry-utility-article', element);
+    remove_all_div_by_key('recommend', element);
+    remove_all_div_by_key('yarpp-related', element);
+    remove_all_div_by_key('specialContent', element);
+    remove_all_div_by_key('google', element);
+    remove_all_div_by_key('relation-', element);
+    remove_all_div_by_key('fb-', element);
+    remove_all_div_by_key('bread-crumb', element);
+    remove_all_div_by_key('fb_box', element);
+    remove_all_div_by_key('et_social', element);
+    remove_all_div_by_key('frame', element);
+    remove_all_div_by_key('recomm-news', element);
+    remove_all_div_by_key('compass-fit-widget', element);
+    remove_all_div_by_key('fb_fans', element);
+    remove_all_div_by_key('menu_page', element);
+    remove_all_div_by_key('part_txt_1', element);
+    remove_all_div_by_key('moreArticle', element);
+    remove_all_div_by_key('Btn', element);
+    remove_all_div_by_key('appDownload', element);
+    remove_all_div_by_key('advertise', element);
+    remove_all_div_by_key('checkIE', element);
+    remove_all_div_by_key('sexmask', element);
+    remove_all_div_by_key('randBlock1', element);
+    remove_all_div_by_key('article_community_box', element);
+    remove_all_div_by_key('guangxuan', element);
+    remove_all_div_by_key('article_keyword', element);
+    remove_all_div_by_key('dontprint', element);
+
+    remove_all_tab_by_key('entry-footer', element, 'section');
+    remove_all_tab_by_key('thumbnail_url', element, 'span');
+    remove_all_tab_by_key('next', element, 'a');
+    remove_all_tab_by_key('button', element, 'a');
+    remove_all_tab_by_key('p-articleImgSrc', element, 'p');
+    remove_all_tab_by_key('blockquote', element, 'p');
+
+
+
     element.querySelectorAll('[loading="lazy"]').forEach(item => {
         item.removeAttribute('loading');
     });
@@ -568,6 +728,12 @@ async function remove_head(element) {
         var new_p = document.createElement('p');
         new_p.innerHTML = item.innerHTML;
         item.replaceWith(new_p);
+    });
+}
+async function remove_img_null(element) {
+    //remove all blank div
+    Array.prototype.filter.call(element.querySelectorAll('img'), f => { return f.src.length == 0 }).forEach(item => {
+        item.parentNode.removeChild(item)
     });
 }
 
@@ -588,12 +754,25 @@ async function remove_head_after(element) {
             item.parentNode.removeChild(item);
         }
     });
+    element.querySelectorAll('figure').forEach(item => {
+        Array.prototype.forEach.call(item.attributes, attribute => item.removeAttribute(attribute.name))
+        if (!item.querySelector('img') && item.innerText.length == 0) {
+            item.parentNode.removeChild(item);
+        } else {
+            item.parentElement.innerHTML.replace(item.outerHTML, item.outerHTML.replaceAll('figure', 'p'))
+        }
+    });
+
     element.innerHTML = element.innerHTML.replaceAll('<noscript>', '').replaceAll('</noscript>', '');
     element.innerHTML = element.innerHTML.replaceAll('<div', '<p').replaceAll('</div>', '</p>');
     element.innerHTML = element.innerHTML.replaceAll('<picture>', '').replaceAll('</picture>', '');
     element.innerHTML = element.innerHTML.replaceAll('<section>', '').replaceAll('</section>', '');
     element.innerHTML = element.innerHTML.replaceAll('<center>', '').replaceAll('</center>', '');
     element.innerHTML = element.innerHTML.replaceAll('<article', '<p').replaceAll('</article>', ',</p>');
+    element.innerHTML = element.innerHTML.replaceAll('<main', '<p').replaceAll('</main>', ',</p>');
+    element.innerHTML = element.innerHTML.replaceAll('<big', '<p').replaceAll('</big>', ',</p>');
+    element.innerHTML = element.innerHTML.replaceAll('<small', '<p').replaceAll('</small>', ',</p>');
+    element.innerHTML = element.innerHTML.replaceAll('<label', '<p').replaceAll('</label>', ',</p>');
 
 }
 
@@ -658,11 +837,15 @@ function validate_all() {
  * @param {*} content 
  * @returns 
  */
-async function save_posts(url, user, pass, title, content, media) {
-    var data = `title=${title}&content=${content}&status=publish&featured_media=${media}`;
+async function save_posts(url, user, pass, title, content, media, thumb_img) {
+    var data = `title=${title}&content=${content}&status=publish&featured_media=${media}&show_in_rest=true&meta.og:image.content=${thumb_img}`;
     // data.excerpt = {};
     var au_str = `Basic ${encode_base64(user, pass)}`;
     var url = `https://${url}/wp-json/wp/v2/posts`
+    if (is_test == 1) {
+        var t = $('#input_domain').val();
+        url = `${t}wp-json/wp/v2/posts`;
+    }
     return await fetch(url, {
         body: data,
         headers: {
@@ -722,19 +905,44 @@ function convert_image_type(src, width, height) {
     return jpeg;
 }
 
-function remove_all_div_by_key(key, doc) {
+function remove_all_div_by_key(key, doc, key_excludes = null) {
     var st = doc.querySelectorAll('div');
-    var st_f1 = Array.prototype.filter.call(st, f => { return (Array.prototype.findIndex.call(f.classList, fi => { return fi.includes(key) }) != -1) || (f.id.toString().includes(key)) });
+    var st_f1 = Array.prototype.filter.call(st, f => {
+        return (Array.prototype.findIndex.call(f.classList, fi => {
+            return fi.includes(key)
+        }) != -1) || (f.id.toString().includes(key))
+    });
     st_f1.forEach(item => {
         item.parentNode.removeChild(item);
     });
 }
 
+function remove_all_hidden_div(doc) {
+    var st = doc.querySelectorAll('div[style="display:none;"]');
+    st.forEach(item => {
+        item.parentNode.removeChild(item);
+    });
+}
+
+function remove_all_tab_by_key(key, doc, tab) {
+    var st = doc.querySelectorAll(tab);
+    var st_f1 = Array.prototype.filter.call(st, f => {
+        return (Array.prototype.findIndex.call(f.classList, fi => {
+            return fi.includes(key)
+        }) != -1) || (f.id.toString().includes(key))
+    });
+    st_f1.forEach(item => {
+        item.parentNode.removeChild(item);
+    });
+}
+
+
 //test_data();
 function test_data() {
-    $('#input_domain').val('seoulnews24h.com');
+    is_test = 1;
+    $('#input_domain').val('http://abc.com:9999/');
     $('#input_user').val('admin');
-    $('#input_pass').val('2aAO DAub v2om qJjG LNvF OPBG');
+    $('#input_pass').val('Thinh_250892');
 
 }
 
@@ -754,4 +962,29 @@ async function waitingForNext(time) {
 function get_domain(url) {
     var str = url.replace('www.', '');
     return str.split('//')[1].split('.')[0];
+}
+
+async function upload_old_version(file_url, au_str, host) {
+    var file_name = file_url.split('/').at(-1);
+    var file_ = await get_blob_from_url(file_url);
+    if (!file_) return null;
+    const formData = new FormData();
+    formData.append("file", file_, file_name);
+    var data_rs = await fetch(host, {
+        body: formData,
+        headers: {
+            'Content-Disposition': `attachment; filename=${file_name}`,
+            Authorization: au_str
+        },
+        method: "POST"
+    })
+        .then(response => response.json())
+        .then(result => {
+            return result;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            return null;
+        });
+    return data_rs;
 }

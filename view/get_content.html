@@ -198,7 +198,7 @@
             var root_url = document.getElementById('input_domain').value;
             var user = document.getElementById('input_user').value;
             var pass = document.getElementById('input_pass').value;
-            var rs = await save_posts(root_url, user, pass, data.title, data.content, data.media);
+            var rs = await save_posts(root_url, user, pass, data.title, data.content, data.media, data.thumb_url);
             let w = await waitingForNext(2000);
             change_stt(stt_name[2], index);
             change_link(rs.link, index)

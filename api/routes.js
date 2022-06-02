@@ -45,8 +45,10 @@ module.exports = function (app) {
 
   app.route('/api/fproxy')
     .post(fake_requestCtrl.get_url);
-    
+  // app.route('/api/fproxy_img')
+  //   .post(fake_requestCtrl.get_blob_image);
+
   app.route('/api/up_image_fromSV')
-  .post(fake_requestCtrl.post_image);
+    .post(fake_requestCtrl.post_image);
 };
 

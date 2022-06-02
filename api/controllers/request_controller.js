@@ -7,15 +7,19 @@ module.exports = {
     get: async (url) => {
         return axios.get(url);
     },
-    download_file: async (file_url, save_path) => {
-        // var rs = await axios({
-        //     method: "get",
-        //     url: file_url,
-        //     responseType: "stream"
-        // });
-        // return rs.data.pipe(fs.createWriteStream(save_path));
-        var rs = await downloadImage(file_url, save_path);
-        return rs;
+    // get_blob_img: async (url) => {
+    //     return axios.get(url, {
+    //         responseType: 'blob'  /* or responseType: 'arraybuffer'  */         
+    //  }).then(response => {
+    //     return new File([response.data], 'abc.jpg');       
+    // });
+    // },
+    download_file: (file_url, save_path, completed, reject) => {
+        downloadImage(file_url, save_path).then((value) => {
+            completed(value);
+        }, (value) => {
+            reject(value);
+        });
     },
     post: async (url, data) => {
         // maxBodyLength: Infinity;
