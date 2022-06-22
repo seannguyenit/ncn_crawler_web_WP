@@ -119,7 +119,7 @@
     <script src="../js/permission.js"></script>
     <script>
         var cr_links = [];
-        var stt_name = ['Đang chờ', 'Đang xử lý', 'Đã xong', 'Bị chặn / Mở bằng extentions', 'Lỗi web WP'];
+        var stt_name = ['Đang chờ', 'Đang xử lý', 'Đã xong', 'Bị chặn / Mở bằng extentions', 'Lỗi web WP', 'Dính capcha'];
         async function run_scripts() {
             document.getElementById('main_table').querySelector('tbody').innerHTML = '';
             //0. validate input
@@ -180,7 +180,9 @@
                     // data = await get_content_by_plugin(r, index);
                 }
                 try {
-                    if (!data.content || data.content.length == 0) {
+                    if (data.error) {
+                        change_stt(stt_name[5], index);
+                    } else if (!data.content || data.content.length == 0) {
                         change_stt(stt_name[4], index);
                         // break;
                     } else {

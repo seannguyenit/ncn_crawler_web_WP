@@ -11,7 +11,10 @@ module.exports = {
         var url = req.body.url;
         axi.get(url).then((r) => {
             res.json({ result: r.data });
-        });
+        }).catch(error => { 
+            res.json({ result: {error: 'Trang bị dính capcha'} });
+            console.log(url, error);
+         });
     },
     // get_blob_image: (req, res) => {
     //     var url = req.body.url;

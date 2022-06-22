@@ -26,6 +26,9 @@ async function get_content(url) {
             return response.json();
         }).then(async function (rs) {
             var html = rs.result;
+            if (html.error) {
+                return { error: html.error };
+            }
             var domain_ = get_domain(url);
 
             // Convert the HTML string into a document object
@@ -167,7 +170,7 @@ async function get_all_media(body_) {
                 f.parentElement.removeChild(f);
             }
         } else {
-            if(f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)){
+            if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
                 f.src = f.dataset.original;
             }
             media_.push(f);
@@ -314,6 +317,12 @@ function insert_img_to_text(content_, img) {
 async function upload_and_replace_url(file_url) {
     try {
         file_url = decodeURIComponent(file_url);
+        if (file_url.indexOf('url=') > -1) {
+            file_url = file_url.slice(file_url.indexOf('url=') + 4);
+            if (file_url.indexOf('&') != -1) {
+                file_url = file_url.slice(0, file_url.indexOf('&'));
+            }
+        }
         if (file_url.lastIndexOf('https') > 0) {
             var s = file_url.slice(file_url.lastIndexOf('https'));
             if (s.indexOf('?') != -1) {
@@ -707,11 +716,16 @@ async function remove_head(element) {
     remove_all_div_by_key('article_community_box', element);
     remove_all_div_by_key('guangxuan', element);
     remove_all_div_by_key('article_keyword', element);
+    remove_all_div_by_key('post_next', element);
+    remove_all_div_by_key('post_statement', element);
+    remove_all_div_by_key('qrcode', element);
+    remove_all_div_by_key('post_side', element);
     remove_all_div_by_key('dontprint', element);
 
     remove_all_tab_by_key('entry-footer', element, 'section');
     remove_all_tab_by_key('thumbnail_url', element, 'span');
     remove_all_tab_by_key('next', element, 'a');
+    remove_all_tab_by_key('qrcode', element, 'a');
     remove_all_tab_by_key('button', element, 'a');
     remove_all_tab_by_key('p-articleImgSrc', element, 'p');
     remove_all_tab_by_key('blockquote', element, 'p');
