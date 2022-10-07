@@ -44,6 +44,10 @@
                             <input type="text" class="form-control" id="input_user"></input>
                             <label for="input_link" class="form-label">Mật khẩu API WP :</label>
                             <input type="password" class="form-control" id="input_pass"></input>
+                            <div class="d-flex flex-row pt-2 w-50 m-auto">
+                                <label for="check_run_again" class="form-label pt-2">Chạy lại khi bị lỗi :</label>
+                                <input type="checkbox" class="form-control" style="width: 30px;" id="check_run_again"></input>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -65,6 +69,7 @@
                                 <th>link</th>
                                 <th>link bài viết</th>
                                 <th>Trạng thái</th>
+                                <th>Số lần chạy</th>
                             </thead>
                             <tbody>
                                 <!-- <tr>
@@ -131,7 +136,9 @@
             //2. collect data from every single link
             //3. send that data to wp
             //4. update status in table
-            run_url_by_url();
+            run_url_by_url().then(() => {
+                run_again_time()
+            });
 
 
 
@@ -156,6 +163,7 @@
                                 <td>${r}</td>
                                 <td></td>
                                 <td>${stt_name[0]}</td>
+                                <td>0</td>
                             </tr> `;
                 }
             }
@@ -165,34 +173,48 @@
             if (!cr_links) return;
             var data = {};
             for (let index = 0; index < cr_links.length; index++) {
-                try {
-                    change_stt(stt_name[1], index);
-                    var r = cr_links[index];
-                    data = await get_content(r);
-                    // if (data.error) {
-                    //     change_stt(stt_name[3], index);
-                    //     data = await get_content_by_plugin(r, index);
-                    // }
-                    // console.log(rs);
-                } catch (error) {
-                    console.log(error);
-                    // change_stt(stt_name[3], index);
-                    // data = await get_content_by_plugin(r, index);
-                }
-                try {
-                    if (data.error) {
-                        change_stt(stt_name[5], index);
-                    } else if (!data.content || data.content.length == 0) {
-                        change_stt(stt_name[4], index);
-                        // break;
-                    } else {
-                        await set_correct_data(data, index);
+                var r = cr_links[index];
+                if ((r.ok || 0) != 1) {
+                    try {
+                        change_stt(stt_name[1], index);
+                        data = await get_content(r);
+                        // if (data.error) {
+                        //     change_stt(stt_name[3], index);
+                        //     data = await get_content_by_plugin(r, index);
+                        // }
+                        // console.log(rs);
+                    } catch (error) {
+                        console.log(error);
+                        // change_stt(stt_name[3], index);
+                        // data = await get_content_by_plugin(r, index);
                     }
-                } catch (error) {
-                    change_stt(stt_name[4], index);
+                    try {
+                        if (data.error) {
+                            change_stt(stt_name[5], index);
+                        } else if (!data.content || data.content.length == 0) {
+                            change_stt(stt_name[4], index);
+                            // break;
+                        } else {
+                            await set_correct_data(data, index);
+                            r.ok = 1;
+                        }
+                    } catch (error) {
+                        change_stt(stt_name[4], index);
 
+                    }
+                    change_count(index);
                 }
+            }
+        }
 
+        async function run_again_time() {
+            var bool_check = document.getElementById('check_run_again').checked;
+            if (bool_check) {
+                var check_still_error = cr_links.findIndex(f => ((f.ok || 0) != 1) > -1);
+                while (cr_links.length > 0 && check_still_error) {
+                    await run_url_by_url();
+                    check_still_error = cr_links.findIndex(f => ((f.ok || 0) != 1) > -1);
+                }
             }
         }
 
@@ -206,6 +228,12 @@
             change_link(rs.link, index)
         }
 
+        async function change_count(index) {
+            var sl = document.querySelector(`[data-row="${index + 1}"]`);
+            if (sl) {
+                sl.children[4].innerText = Number(sl.children[4].innerText) + 1;
+            }
+        }
         async function change_stt(name, index) {
             var sl = document.querySelector(`[data-row="${index + 1}"]`);
             if (sl) {

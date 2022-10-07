@@ -70,7 +70,7 @@ async function get_content(url) {
 
             // if (arr_domain.indexOf(domain_) != -1) {
             body_ = await get_main_intelligent(doc, domain_);
-            converted_ = await get_all_media(body_);
+            converted_ = await get_all_media(body_, (new URL(url)).origin);
             await remove_img_null(body_);
             body_.innerHTML = body_.innerHTML.replaceAll('&nbsp;', '').replaceAll('&amp;', '').replaceAll('&lt;', ' ').replaceAll("\n", "").replaceAll("\t", "").replaceAll("&quot;", "");
             await remove_head_after(body_)
@@ -162,9 +162,13 @@ function remove_author_in_title(sub_title) {
     return sub_title;
 }
 
-async function get_all_media(body_) {
+async function get_all_media(body_, origin_domain) {
     var media_ = [];
-    Array.prototype.forEach.call(body_.querySelectorAll('img'), f => {
+    var lst_all_img = body_.querySelectorAll('img');
+    lst_all_img.forEach(ii => {
+        ii.src = ii.src.replaceAll(window.location.origin, origin_domain);
+    })
+    Array.prototype.forEach.call(lst_all_img, f => {
         if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:') || f.src.includes('.svg')) {
             if (!f.dataset.src) {
                 f.parentElement.removeChild(f);
@@ -177,7 +181,7 @@ async function get_all_media(body_) {
         }
     });
     if (media_.length == 0) {
-        Array.prototype.forEach.call(body_.querySelectorAll('img'), f => {
+        Array.prototype.forEach.call(lst_all_img, f => {
             if ((f.dataset.src) && (arr_type.findIndex(fi => { return f.dataset.src.includes(fi) }) != -1)) {
                 var dt_src = f.dataset.src;
                 var found_url = dt_src.split('"').find(find => { return arr_type.findIndex(f_i => { return find.includes(f_i) }) != -1 });
@@ -400,18 +404,7 @@ async function post_url_image_fromSV(url_image, url_post, key) {
 }
 
 async function get_blob_from_url(url_) {
-    let response = await fetch(r_url,
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ url: url_ })
-        }
-    ).then(function (r) {
-        // The API call was successful!
-        return new File([r.result], 'abc.jpg');
-    });
+    let response = await fetch('/proxy/' + url_).then(r => r.blob());
     return response;
 }
 
@@ -463,6 +456,9 @@ async function get_main_intelligent(doc, domain_) {
         select_content_located = doc.body.querySelector('pre')
     }
     if (!select_content_located) {
+        select_content_located = doc.getElementById('node-content')
+    }
+    if (!select_content_located) {
         select_content_located = doc.body
     }
     // if (!select_content_located) {
@@ -494,6 +490,10 @@ async function get_main_intelligent(doc, domain_) {
             ft.parentElement.removeChild(ft);
             select_content_located = doc.getElementById('DOM_DOCUMENT');
             break;
+
+        // case 'coms.pub':
+        //     select_content_located = doc.getElementById('node-content');
+        //     break;
         default:
             break;
     }
@@ -721,6 +721,10 @@ async function remove_head(element) {
     remove_all_div_by_key('qrcode', element);
     remove_all_div_by_key('post_side', element);
     remove_all_div_by_key('dontprint', element);
+    remove_all_div_by_key('compass-fit', element);
+    remove_all_div_by_key('jubao', element);
+    remove_all_div_by_key('popup', element);
+    remove_all_div_by_key('search-container', element);
 
     remove_all_tab_by_key('entry-footer', element, 'section');
     remove_all_tab_by_key('thumbnail_url', element, 'span');
@@ -743,6 +747,8 @@ async function remove_head(element) {
         new_p.innerHTML = item.innerHTML;
         item.replaceWith(new_p);
     });
+
+
 }
 async function remove_img_null(element) {
     //remove all blank div
@@ -974,8 +980,7 @@ async function waitingForNext(time) {
 }
 
 function get_domain(url) {
-    var str = url.replace('www.', '');
-    return str.split('//')[1].split('.')[0];
+    return (new URL(url)).hostname;
 }
 
 async function upload_old_version(file_url, au_str, host) {
