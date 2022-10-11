@@ -184,15 +184,20 @@ async function get_all_media(body_, origin_domain) {
         Array.prototype.forEach.call(lst_all_img, f => {
             if ((f.dataset.src) && (arr_type.findIndex(fi => { return f.dataset.src.includes(fi) }) != -1)) {
                 var dt_src = f.dataset.src;
-                var found_url = dt_src.split('"').find(find => { return arr_type.findIndex(f_i => { return find.includes(f_i) }) != -1 });
-                if (found_url) {
-                    found_url = found_url.replace('https', '').replace('//', '');
-                    f.src = 'https://' + found_url;
-                    if (arr_black_type.findIndex(fb => { return f.src.includes(fb) }) != -1) {
-                        f.src = f.src.replace(arr_black_type[arr_black_type.findIndex(fb => { return f.src.includes(fb) })], '.jpg');
+                if (!dt_src.startsWith(origin_domain) && dt_src.startsWith('/')) {
+                    dt_src = origin_domain + dt_src;
+                    f.src = dt_src;
+                } else {
+                    var found_url = dt_src.split('"').find(find => { return arr_type.findIndex(f_i => { return find.includes(f_i) }) != -1 });
+                    if (found_url) {
+                        found_url = found_url.replace('https', '').replace('//', '');
+                        f.src = 'https://' + found_url;
                     }
-                    media_.push(f);
                 }
+                if (arr_black_type.findIndex(fb => { return f.src.includes(fb) }) != -1) {
+                    f.src = f.src.replace(arr_black_type[arr_black_type.findIndex(fb => { return f.src.includes(fb) })], '.jpg');
+                }
+                media_.push(f);
             }
         });
     }
@@ -653,7 +658,7 @@ async function remove_head(element) {
     });
     remove_all_div_by_key('bottom', element);
     remove_all_div_by_key('elementSectionHeading', element);
-    remove_all_div_by_key('head', element);
+    remove_all_div_by_key('head', element, ['headling']);
     remove_all_div_by_key('nav', element);
     remove_all_div_by_key('foot', element);
     remove_all_div_by_key('Footer', element);
@@ -925,11 +930,11 @@ function convert_image_type(src, width, height) {
     return jpeg;
 }
 
-function remove_all_div_by_key(key, doc, key_excludes = null) {
+function remove_all_div_by_key(key, doc, key_excludes = []) {
     var st = doc.querySelectorAll('div');
     var st_f1 = Array.prototype.filter.call(st, f => {
         return (Array.prototype.findIndex.call(f.classList, fi => {
-            return fi.includes(key)
+            return (fi.includes(key) && (key_excludes.findIndex(ke => fi.includes(ke)) === -1))
         }) != -1) || (f.id.toString().includes(key))
     });
     st_f1.forEach(item => {

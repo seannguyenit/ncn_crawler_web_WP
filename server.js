@@ -12,7 +12,7 @@ var cors_proxy = require('./lib/cors-anywhere').createServer({
 });
 
 require('dotenv').config
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 4000
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -37,7 +37,7 @@ app.all('/proxy/:proxyUrl*', (req, res) => {
     cors_proxy.emit('request', req, res);
 })
 server.listen(port, () => {
-    console.log('listening on *:3000');
+    console.log('listening on *:4000');
 });
 console.log('RESTful API server started on: ' + port);
 
