@@ -728,6 +728,7 @@ async function remove_head(element) {
     remove_all_div_by_key('dontprint', element);
     remove_all_div_by_key('compass-fit', element);
     remove_all_div_by_key('jubao', element);
+    remove_all_div_by_key('promote-', element);
     remove_all_div_by_key('popup', element);
     remove_all_div_by_key('search-container', element);
 
