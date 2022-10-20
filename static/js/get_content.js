@@ -729,6 +729,7 @@ async function remove_head(element) {
     remove_all_div_by_key('compass-fit', element);
     remove_all_div_by_key('jubao', element);
     remove_all_div_by_key('promote-', element);
+    remove_all_div_by_key('post-title', element); //xoa di tieu de trong content vi cai title no tu dong tro thanh tieu de trong content roi
     remove_all_div_by_key('popup', element);
     remove_all_div_by_key('search-container', element);
 
