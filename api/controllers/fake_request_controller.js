@@ -23,8 +23,8 @@ module.exports = {
     //     });
     // },
     post_image: async (req, res) => {
-        var url_image = req.body.url_image;
-        var url_post = req.body.url_post;
+        var url_image = encodeURI(req.body.url_image);
+        var url_post = encodeURI(req.body.url_post);
         var key = req.body.key;
         try {
             await post_image_run(url_image, url_post, key, (r) => {
