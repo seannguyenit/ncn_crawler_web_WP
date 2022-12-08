@@ -26,7 +26,7 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`everytr1`@`localhost` PROCEDURE `get_all_menu_by_user` (IN `user_id` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_menu_by_user` (IN `user_id` INT)  BEGIN
 	set @is_admin = (select is_admin from `user` where `user`.id = user_id limit 1);
     if(@is_admin != 1) then 
         select UM.*,M.action,U.`username`,M.name,M.par_id,M.id as id from user_menu as UM 
@@ -40,7 +40,7 @@ CREATE DEFINER=`everytr1`@`localhost` PROCEDURE `get_all_menu_by_user` (IN `user
 	
 END$$
 
-CREATE DEFINER=`everytr1`@`localhost` PROCEDURE `get_all_menu_template` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_menu_template` ()  BEGIN
 	SELECT `menu`.`id`,
     `menu`.`name`,
     `menu`.`par_id`,
@@ -50,18 +50,18 @@ order by `menu`.`order`;
 
 END$$
 
-CREATE DEFINER=`everytr1`@`localhost` PROCEDURE `login` (`userp` NVARCHAR(250), `passp` NVARCHAR(250))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `login` (`userp` NVARCHAR(250), `passp` NVARCHAR(250))  BEGIN
 	select `id`,
 `username`,
 `is_admin`,
 `active` from `user` where `user`.`username` = userp and pass = passp and `active` = 1 limit 1;
 END$$
 
-CREATE DEFINER=`everytr1`@`localhost` PROCEDURE `logout` (IN `acc_id` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `logout` (IN `acc_id` INT)  BEGIN
 	select * from `user` where `user`.id = acc_id limit 1;
 END$$
 
-CREATE DEFINER=`everytr1`@`localhost` PROCEDURE `user_getall` (`pic` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `user_getall` (`pic` INT)  BEGIN
 	select `user`.`id`,
     `user`.`username`,
     `user`.`is_admin`,
@@ -73,7 +73,7 @@ CREATE DEFINER=`everytr1`@`localhost` PROCEDURE `user_getall` (`pic` INT)  BEGIN
     `user`.`created_by` from `user` where `user`.`active` = 1;
 END$$
 
-CREATE DEFINER=`everytr1`@`localhost` PROCEDURE `user_getdetail` (`id` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `user_getdetail` (`id` INT)  BEGIN
 	select `user`.`id`,
     `user`.`username`,
 	`user`.`pass`,
