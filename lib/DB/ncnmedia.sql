@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.31, for Win64 (x86_64)
 --
--- Host: localhost    Database: ncnmediacontent
+-- Host: localhost    Database: everytr1_ncnmediacontent
 -- ------------------------------------------------------
 -- Server version	5.7.36
 
@@ -18,8 +18,6 @@
 --
 -- Table structure for table `menu`
 --
-
-use `ncnmediacontent`;
 
 DROP TABLE IF EXISTS `menu`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -153,7 +151,7 @@ INSERT INTO `web_info` VALUES (1,'notice','Hệ Thống NCNMEDIA');
 UNLOCK TABLES;
 
 --
--- Dumping routines for database 'ncnmediacontent'
+-- Dumping routines for database 'everytr1_ncnmediacontent'
 --
 /*!50003 DROP PROCEDURE IF EXISTS `get_all_menu_by_user` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -165,7 +163,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
-CREATE PROCEDURE `get_all_menu_by_user`(IN `user_id` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_menu_by_user`(IN `user_id` INT)
 BEGIN
 	set @is_admin = (select is_admin from `user` where `user`.id = user_id limit 1);
     if(@is_admin != 1) then 
@@ -194,7 +192,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
-CREATE PROCEDURE `get_all_menu_template`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_menu_template`()
 BEGIN
 	SELECT `menu`.`id`,
     `menu`.`name`,
@@ -219,7 +217,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
-CREATE PROCEDURE `login`(`userp` NVARCHAR(250), `passp` NVARCHAR(250))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `login`(`userp` NVARCHAR(250), `passp` NVARCHAR(250))
 BEGIN
 	select `id`,
 `username`,
@@ -241,7 +239,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
-CREATE PROCEDURE `logout`(IN `acc_id` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `logout`(IN `acc_id` INT)
 BEGIN
 	select * from `user` where `user`.id = acc_id limit 1;
 END ;;
@@ -260,7 +258,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
-CREATE PROCEDURE `user_getall`(`pic` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `user_getall`(`pic` INT)
 BEGIN
 	select `user`.`id`,
     `user`.`username`,
@@ -287,7 +285,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER' */ ;
 DELIMITER ;;
-CREATE PROCEDURE `user_getdetail`(`id` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `user_getdetail`(`id` INT)
 BEGIN
 	select `user`.`id`,
     `user`.`username`,
@@ -312,4 +310,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-12-05 21:23:16
+-- Dump completed on 2022-12-08 10:59:57
