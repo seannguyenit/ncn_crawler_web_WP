@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.31, for Win64 (x86_64)
 --
--- Host: localhost    Database: everytr1_ncnmediacontent
+-- Host: localhost    Database: ncnmediacontent
 -- ------------------------------------------------------
 -- Server version	5.7.36
 
@@ -20,7 +20,7 @@
 --
 create database `ncnmediacontent`;
 
-use `everytr1_ncnmediacontent`;
+use `ncnmediacontent`;
 
 DROP TABLE IF EXISTS `menu`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -154,7 +154,7 @@ INSERT INTO `web_info` VALUES (1,'notice','Hệ Thống NCNMEDIA');
 UNLOCK TABLES;
 
 --
--- Dumping routines for database 'everytr1_ncnmediacontent'
+-- Dumping routines for database 'ncnmediacontent'
 --
 /*!50003 DROP PROCEDURE IF EXISTS `get_all_menu_by_user` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
