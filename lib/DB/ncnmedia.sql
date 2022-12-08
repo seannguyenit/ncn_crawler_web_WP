@@ -18,7 +18,6 @@
 --
 -- Table structure for table `menu`
 --
-create database `ncnmediacontent`;
 
 use `ncnmediacontent`;
 
