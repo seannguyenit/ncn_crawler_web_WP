@@ -1,7 +1,7 @@
 'use strict'
 
 const util = require('util')
-const mysql = require('mysql')
+const mysql = require('mysql2')
 const db = require('./../db')
 // const session = require('express-session');
 
