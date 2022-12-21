@@ -169,21 +169,37 @@ async function get_all_media(body_, origin_domain) {
         ii.src = ii.src.replaceAll(window.location.origin, origin_domain);
     })
     Array.prototype.forEach.call(lst_all_img, f => {
-        if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:') || f.src.includes('.svg')) {
-            if (!f.dataset.src) {
-                f.parentElement.removeChild(f);
-            }
-        } else {
+        if (!f.src || (arr_type.findIndex(fi => { return f.src.includes(fi) }) != -1)) {
             if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
                 f.src = f.dataset.original;
+            } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
+                f.src = f.dataset.breeze;
             }
+        } else {
+            if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:') || f.src.includes('.svg')) {
+                // if (!f.dataset.src) {
+                if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
+                    f.src = f.dataset.original;
+                } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
+                    f.src = f.dataset.breeze;
+                } else {
+                    f.parentElement.removeChild(f);
+                }
+                // }
+            }
+        }
+        if (f.src && f.src.length > 0) {
             media_.push(f);
         }
     });
     if (media_.length == 0) {
         Array.prototype.forEach.call(lst_all_img, f => {
+            var dt_src = '';
             if ((f.dataset.src) && (arr_type.findIndex(fi => { return f.dataset.src.includes(fi) }) != -1)) {
-                var dt_src = f.dataset.src;
+                dt_src = f.dataset.src;
+
+            }
+            if (dt_src && dt_src.length > 0) {
                 if (!dt_src.startsWith(origin_domain) && dt_src.startsWith('/')) {
                     dt_src = origin_domain + dt_src;
                     f.src = dt_src;
@@ -991,7 +1007,7 @@ function get_domain(url) {
 }
 
 async function upload_old_version(file_url, au_str, host) {
-    var file_name = file_url.split('/').at(-1);
+    var file_name = (new Date()).getTime().toString() + '.png';
     var file_ = await get_blob_from_url(file_url);
     if (!file_) return null;
     const formData = new FormData();

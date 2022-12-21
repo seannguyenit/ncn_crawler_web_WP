@@ -11,10 +11,10 @@ module.exports = {
         var url = req.body.url;
         axi.get(url).then((r) => {
             res.json({ result: r.data });
-        }).catch(error => { 
-            res.json({ result: {error: 'Trang bị dính capcha'} });
+        }).catch(error => {
+            res.json({ result: { error: 'Trang bị dính capcha' } });
             console.log(url, error);
-         });
+        });
     },
     // get_blob_image: (req, res) => {
     //     var url = req.body.url;
@@ -62,12 +62,12 @@ async function save_file_then_post_link(file, url, key) {
     var f = fs.createReadStream(file.filepath);
     // fs.unlinkSync(file.filepath);
     fData.append('file', f, {
-        filename: file.originalFilename
+        filename: decodeURIComponent(file.originalFilename)
     });
     const options = {
         maxBodyLength: Infinity,
         headers: {
-            "Content-Disposition": `attachment; filename=${file.originalFilename}`,
+            "Content-Disposition": `attachment; filename=${decodeURIComponent(file.originalFilename)}`,
             "Authorization": key,
             'Content-Type': 'multipart/form-data',
             ...fData.getHeaders()
