@@ -374,9 +374,9 @@ async function upload_and_replace_url(file_url) {
             file_url = file_url.replace(arr_black_type[arr_black_type.findIndex(fb => { return file_url.includes(fb) })], '.jpg');
         }
         var root_url = document.getElementById('input_domain').value;
-        var host = `https://${root_url}/wp-json/wp/v2/media`;
+        var host = `https://${root_url}/?rest_route=/wp/v2/media`;
         if (is_test == 1) {
-            host = `${root_url}wp-json/wp/v2/media`;
+            host = `${root_url}?rest_route=/wp/v2/media`;
         }
         var user = document.getElementById('input_user').value;
         var pass = document.getElementById('input_pass').value;
@@ -884,10 +884,10 @@ async function save_posts(url, user, pass, title, content, media, thumb_img) {
     var data = `title=${title}&content=${content}&status=publish&featured_media=${media}&show_in_rest=true&meta.og:image.content=${thumb_img}`;
     // data.excerpt = {};
     var au_str = `Basic ${encode_base64(user, pass)}`;
-    var url = `https://${url}/wp-json/wp/v2/posts`
+    var url = `https://${url}/?rest_route=/wp/v2/posts`
     if (is_test == 1) {
         var t = $('#input_domain').val();
-        url = `${t}wp-json/wp/v2/posts`;
+        url = `${t}?rest_route=/wp/v2/posts`;
     }
     return await fetch(url, {
         body: data,
