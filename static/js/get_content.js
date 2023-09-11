@@ -375,6 +375,11 @@ async function upload_and_replace_url(file_url) {
         }
         var root_url = document.getElementById('input_domain').value;
         var host = `https://${root_url}/wp-json/wp/v2/media`;
+        if (document.getElementById("is_plain_link").checked) {
+            host = '/proxy/' + host.replace("wp-json", "?rest_route=");
+        }
+
+
         if (is_test == 1) {
             host = `${root_url}wp-json/wp/v2/media`;
         }
@@ -635,7 +640,9 @@ async function remove_head(element) {
         item.parentNode.removeChild(item)
     });
     element.querySelectorAll('aside').forEach(item => {
-        item.parentNode.removeChild(item)
+        if((item.innerText.replace(/[\t\n]/g, '').length == 0) || (!item.querySelector('img')) || (item.innerText.includes('Menu') || item.innerText.includes('menu'))){
+            item.parentNode.removeChild(item)
+        }
     });
     element.querySelectorAll('wp-ad').forEach(item => {
         item.parentNode.removeChild(item)
@@ -881,10 +888,16 @@ function validate_all() {
  * @returns 
  */
 async function save_posts(url, user, pass, title, content, media, thumb_img) {
-    var data = `title=${title}&content=${content}&status=publish&featured_media=${media}&show_in_rest=true&meta.og:image.content=${thumb_img}`;
+    var data = `title=${title}&content=${encodeURIComponent(content)}&status=publish&featured_media=${media}&show_in_rest=true&meta.og:image.content=${thumb_img}`;
     // data.excerpt = {};
     var au_str = `Basic ${encode_base64(user, pass)}`;
+    let plain_url = `https://${url}/index.php?rest_route=/wp/v2/posts`
     var url = `https://${url}/wp-json/wp/v2/posts`
+    
+    if (document.getElementById("is_plain_link").checked) {
+        url = plain_url
+    }
+    
     if (is_test == 1) {
         var t = $('#input_domain').val();
         url = `${t}wp-json/wp/v2/posts`;
