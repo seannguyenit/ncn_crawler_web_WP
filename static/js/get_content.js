@@ -169,27 +169,36 @@ async function get_all_media(body_, origin_domain) {
         ii.src = ii.src.replaceAll(window.location.origin, origin_domain);
     })
     Array.prototype.forEach.call(lst_all_img, f => {
-        if (!f.src || (arr_type.findIndex(fi => { return f.src.includes(fi) }) != -1)) {
+        if (!f.src || !(arr_type.findIndex(fi => { return f.src.includes(fi) }) != -1)) {
             if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
                 f.src = f.dataset.original;
+                media_.push(f);
             } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
                 f.src = f.dataset.breeze;
+                media_.push(f);
             }
         } else {
-            if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:') || f.src.includes('.svg')) {
-                // if (!f.dataset.src) {
-                if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
-                    f.src = f.dataset.original;
-                } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
-                    f.src = f.dataset.breeze;
-                } else {
-                    f.parentElement.removeChild(f);
+            if (arr_type.find(ft => f.src.includes(ft))) {
+                media_.push(f);
+            } else {
+                if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:') || f.src.includes('.svg')) {
+                    // if (!f.dataset.src) {
+                    if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
+                        f.src = f.dataset.original;
+                        media_.push(f);
+                    } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
+                        f.src = f.dataset.breeze;
+                        media_.push(f);
+                    } else if (f.dataset.lazySrc) {
+                        if (arr_type.find(ft => f.dataset.lazySrc.includes(ft))) {
+                            f.src = f.dataset.lazySrc;
+                            media_.push(f);
+                        }
+                    }
+                    // }
                 }
-                // }
             }
-        }
-        if (f.src && f.src.length > 0) {
-            media_.push(f);
+
         }
     });
     if (media_.length == 0) {
@@ -473,7 +482,9 @@ async function get_main_intelligent(doc, domain_) {
         select_content_located = doc.body.getElementsByClassName('article-header')[0];
     }
     if (!select_content_located) {
-        select_content_located = doc.body.querySelector('article');
+        if (doc.body.querySelector('article').querySelectorAll('img').length != 0) {
+            select_content_located = doc.body.querySelector('article');
+        }
     }
     if (!select_content_located) {
         select_content_located = doc.body.querySelector('precontent')
@@ -640,7 +651,7 @@ async function remove_head(element) {
         item.parentNode.removeChild(item)
     });
     element.querySelectorAll('aside').forEach(item => {
-        if((item.innerText.replace(/[\t\n]/g, '').length == 0) || (!item.querySelector('img')) || (item.innerText.includes('Menu') || item.innerText.includes('menu'))){
+        if ((item.innerText.replace(/[\t\n]/g, '').length == 0) || (!item.querySelector('img')) || (item.innerText.includes('Menu') || item.innerText.includes('menu'))) {
             item.parentNode.removeChild(item)
         }
     });
@@ -893,11 +904,11 @@ async function save_posts(url, user, pass, title, content, media, thumb_img) {
     var au_str = `Basic ${encode_base64(user, pass)}`;
     let plain_url = `https://${url}/index.php?rest_route=/wp/v2/posts`
     var url = `https://${url}/wp-json/wp/v2/posts`
-    
+
     if (document.getElementById("is_plain_link").checked) {
         url = plain_url
     }
-    
+
     if (is_test == 1) {
         var t = $('#input_domain').val();
         url = `${t}wp-json/wp/v2/posts`;
