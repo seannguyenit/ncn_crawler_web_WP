@@ -3,7 +3,7 @@ var is_test = 0;
 // const r_url = "https://arthurtech.xyz/";
 const r_url = "/api/fproxy";
 // const r_url = "/proxy/";
-const arr_type = ['.jpg', '.png', '.jpeg', '.img'];
+const arr_type = ['.jpg', '.png', '.jpeg', '.img', '.webp'];
 const arr_black_type = ['.img'];
 
 const arr_element_find = ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'img', 'a', 'section', 'article', 'strong', 'small'];
@@ -169,36 +169,31 @@ async function get_all_media(body_, origin_domain) {
         ii.src = ii.src.replaceAll(window.location.origin, origin_domain);
     })
     Array.prototype.forEach.call(lst_all_img, f => {
-        if (!f.src || !(arr_type.findIndex(fi => { return f.src.includes(fi) }) != -1)) {
+        if (!f.src || (arr_type.findIndex(fi => { return f.src.includes(fi) }) != -1)) {
             if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
                 f.src = f.dataset.original;
-                media_.push(f);
             } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
                 f.src = f.dataset.breeze;
-                media_.push(f);
+            }else if (f.dataset.lazySrc && (arr_type.findIndex(fi => { return f.dataset.lazySrc.includes(fi) }) != -1)) {
+                f.src = f.dataset.lazySrc;
             }
         } else {
-            if (arr_type.find(ft => f.src.includes(ft))) {
-                media_.push(f);
-            } else {
-                if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:') || f.src.includes('.svg')) {
-                    // if (!f.dataset.src) {
-                    if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
-                        f.src = f.dataset.original;
-                        media_.push(f);
-                    } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
-                        f.src = f.dataset.breeze;
-                        media_.push(f);
-                    } else if (f.dataset.lazySrc) {
-                        if (arr_type.find(ft => f.dataset.lazySrc.includes(ft))) {
-                            f.src = f.dataset.lazySrc;
-                            media_.push(f);
-                        }
-                    }
-                    // }
+            if (f.src.includes('assets') || f.src.includes('facebook') || f.src.includes('gif') || f.src.includes('data:') || f.src.includes('.svg')) {
+                // if (!f.dataset.src) {
+                if (f.dataset.original && (arr_type.findIndex(fi => { return f.dataset.original.includes(fi) }) != -1)) {
+                    f.src = f.dataset.original;
+                } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
+                    f.src = f.dataset.breeze;
+                } else if (f.dataset.lazySrc && (arr_type.findIndex(fi => { return f.dataset.lazySrc.includes(fi) }) != -1)) {
+                    f.src = f.dataset.lazySrc;
+                } else {
+                    f.src = 'ncnnoimage';
                 }
+                // }
             }
-
+        }
+        if (f.src && f.src.length > 0 && !f.src.includes('ncnnoimage')) {
+            media_.push(f);
         }
     });
     if (media_.length == 0) {
@@ -482,7 +477,7 @@ async function get_main_intelligent(doc, domain_) {
         select_content_located = doc.body.getElementsByClassName('article-header')[0];
     }
     if (!select_content_located) {
-        if (doc.body.querySelector('article').querySelectorAll('img').length != 0) {
+        if (doc.body.querySelector('article') && doc.body.querySelector('article').querySelectorAll('img').length != 0) {
             select_content_located = doc.body.querySelector('article');
         }
     }
