@@ -174,7 +174,7 @@ async function get_all_media(body_, origin_domain) {
                 f.src = f.dataset.original;
             } else if (f.dataset.breeze && (arr_type.findIndex(fi => { return f.dataset.breeze.includes(fi) }) != -1)) {
                 f.src = f.dataset.breeze;
-            }else if (f.dataset.lazySrc && (arr_type.findIndex(fi => { return f.dataset.lazySrc.includes(fi) }) != -1)) {
+            } else if (f.dataset.lazySrc && (arr_type.findIndex(fi => { return f.dataset.lazySrc.includes(fi) }) != -1)) {
                 f.src = f.dataset.lazySrc;
             }
         } else {
@@ -188,6 +188,7 @@ async function get_all_media(body_, origin_domain) {
                     f.src = f.dataset.lazySrc;
                 } else {
                     f.src = 'ncnnoimage';
+                    f.parentNode.removeChild(f);
                 }
                 // }
             }
@@ -608,6 +609,9 @@ async function remove_head(element) {
     element.querySelectorAll('hr').forEach(item => {
         item.parentNode.removeChild(item)
     });
+    element.querySelectorAll('ins').forEach(item => {
+        item.parentNode.removeChild(item)
+    });
     element.querySelectorAll('br').forEach(item => {
         item.parentNode.removeChild(item)
     });
@@ -686,6 +690,12 @@ async function remove_head(element) {
         item.parentNode.removeChild(item)
     });
     remove_all_div_by_key('bottom', element);
+    remove_all_div_by_key('td-adspot-title', element, [], true);
+    remove_all_div_by_key('td_block_wrap td_block_title td-pb-border-top td-fix-index', element, [], true);
+    remove_all_div_by_key('adsbygoogle', element);
+    remove_all_div_by_key('tdb-post-prev', element, [], true);
+    remove_all_div_by_key('tdb-post-next', element, [], true);
+    remove_all_div_by_key('powered-by', element);
     remove_all_div_by_key('elementSectionHeading', element);
     remove_all_div_by_key('head', element, ['headling']);
     remove_all_div_by_key('nav', element);
@@ -967,15 +977,30 @@ function convert_image_type(src, width, height) {
     return jpeg;
 }
 
-function remove_all_div_by_key(key, doc, key_excludes = []) {
-    var st = doc.querySelectorAll('div');
-    var st_f1 = Array.prototype.filter.call(st, f => {
-        return (Array.prototype.findIndex.call(f.classList, fi => {
-            return (fi.includes(key) && (key_excludes.findIndex(ke => fi.includes(ke)) === -1))
-        }) != -1) || (f.id.toString().includes(key))
-    });
-    st_f1.forEach(item => {
-        item.parentNode.removeChild(item);
+function remove_all_div_by_key(key, doc, key_excludes = [], withPart = false) {
+    ['div', 'span'].forEach(tag => {
+        var st = doc.querySelectorAll(tag);
+        var st_f1 = Array.prototype.filter.call(st, f => {
+            return (Array.prototype.findIndex.call(f.classList, fi => {
+                return (fi.includes(key) && (key_excludes.findIndex(ke => fi.includes(ke)) === -1))
+            }) != -1) || (f.id.toString().includes(key))
+        });
+        st_f1.forEach(item => {
+            if (!withPart) {
+                item.parentNode.removeChild(item);
+            } else {
+                let p = item.parentNode;
+                p.parentNode.removeChild(p);
+            }
+        });
+    })
+    Array.from(doc.getElementsByClassName(key)).forEach(e => {
+        if (!withPart) {
+            e.parentNode.removeChild(e);
+        } else {
+            let p = e.parentNode;
+            p.parentNode.removeChild(p);
+        }
     });
 }
 
