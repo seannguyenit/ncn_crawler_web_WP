@@ -25,6 +25,8 @@ module.exports = function (app) {
     .get(homeCtrl.user);
   app.route('/home/tool_lib')
     .get(homeCtrl.tool_lib);
-    app.route('/home/tool_m')
+  app.route('/home/fbuid')
+    .get(homeCtrl.fbuid);
+  app.route('/home/tool_m')
     .get(homeCtrl.tool_m);
 };

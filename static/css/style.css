@@ -65,6 +65,13 @@ a:hover{
     font-size: x-large;
 }
 
+td {
+    text-wrap: wrap;
+    max-width: 200px;
+    overflow-wrap: anywhere;
+}
+
+
 table{
     color: white !important;
 }

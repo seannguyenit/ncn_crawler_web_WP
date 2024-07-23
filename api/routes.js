@@ -4,6 +4,7 @@ module.exports = function (app) {
   let menuCtrl = require('./controllers/menu_controller');
   let fake_requestCtrl = require('./controllers/fake_request_controller');
   let toolCtrl = require('./controllers/tool_controller');
+  let fbuidCtrl = require('./controllers/fbuser_controller');
   // todoList Routes
   app.route('/api/login')
     .post(accCtrl.login);
@@ -31,6 +32,29 @@ module.exports = function (app) {
   app.route('/api/tool_lib/:id')
     .put(toolCtrl.update)
     .delete(toolCtrl.delete);
+
+  app.route('/api/fbuid')
+    .get(fbuidCtrl.get)
+    .post(fbuidCtrl.store);
+
+  app.route('/api/fbuid_insertbigdata')
+    .post(fbuidCtrl.storeBigData)
+
+  app.route('/api/fbuid_updatebigdata')
+    .put(fbuidCtrl.updateBigData);
+
+  app.route('/api/fbuid/checkAccounts')
+    .post(fbuidCtrl.getByMultiAcc)
+
+  app.route('/api/fbuid/:id')
+    .get(fbuidCtrl.detail);
+
+  app.route('/api/fbuid/check/:account')
+    .get(fbuidCtrl.getByAcc);
+
+  app.route('/api/fbuid/:id')
+    .put(fbuidCtrl.update)
+    .delete(fbuidCtrl.delete);
 
   app.route('/api/menu')
     .get(menuCtrl.get_template);

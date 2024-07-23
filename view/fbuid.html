@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>User</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body class="body-bg-custom">
+    <div class="col-12 d-flex">
+        <div class="col-3">
+            <a class="navbar-brand com-name" href="/home/notice">ncnmedia</a>
+            <div id="main_menu_nav">
+                <ul id="main_menu" class="list-group">
+                    <li class="list-group-item"><a>Item</a>
+                        <ul class="list-group">
+                            <li class="list-group-item active">Active item</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="col-12" style="height: 90vh;overflow-y: scroll;scrollbar-width: thin;">
+                <div class="container">
+                    <div class="col-12 pt-5 pb-2 d-flex" style="align-items: center;">
+                        <div>
+                            <button onclick="open_modal(0)" class="btn btn-primary">Tạo mới</button>
+                            <a href="#inputBigData" class="btn btn-primary" style="margin-left: 50px;">Cập nhật số lượng
+                                lớn</a>
+                        </div>
+                        <div class="d-flex" style="width: 50%; align-items: center; margin-left: 50px;">
+                            <label for="slotname" class="form-label" style="width: 150px;">Lọc theo Lô</label>
+                            <input type="text" class="form-control" id="slotname" />
+                            <button onclick="init_users()" class="btn btn-primary">Lọc</button>
+                        </div>
+                    </div>
+                    <h5 id="tableCaption"></h5>
+                    <div class="col-12">
+                        <table id="table_data"
+                            class="tablemanager table-fbuid table table-striped table-bordered table-sm" cellspacing="0"
+                            width="100%">
+                            <thead>
+                                <tr>
+                                    <th>stt</th>
+                                    <th>Lô</th>
+                                    <th>account</th>
+                                    <th>pass</th>
+                                    <th>uid</th>
+                                    <th>token</th>
+                                    <th class="disableFilterBy">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="col-12" style="max-height: 90vh;overflow-y: scroll;scrollbar-width: thin;">
+                <div class="col-12">
+                    <div class="col-12 pt-5 pb-2">
+                        <h2>Cập nhật số lượng lớn</h2>
+                    </div>
+                    <div class="col-12 d-flex" style="align-items: center;">
+                        <div class="col-7">
+                            <label for="inputBigData" class="form-label">Nhập vào Lô|account|password|uid|token</label>
+                            <textarea style="width: 100%;" id="inputBigData" rows="15"></textarea>
+                        </div>
+                        <div class="col-1">
+                            <button class="btn-primary" onclick="analysicInputBugdata()">Run(1)</button>
+                        </div>
+                        <div class="col-4">
+                            <div class="d-blog">
+                                <div>
+                                    Trạng thái trùng dữ liệu : <span id="statusDuplicate">Không</span>
+                                </div>
+                                <div>
+                                    Tổng số : <span id="total"></span>
+                                </div>
+                                <div>
+                                    Thêm mới : <span id="totalInsert"></span>
+                                </div>
+                                <div>
+                                    Cập nhật : <span id="totalUpdate"></span>
+                                </div>
+                                <div class="d-flex flex-row">
+                                    <button onclick="runInputBugdata()" class="btn btn-primary">Xác nhận
+                                        chạy(2)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="user_details" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="user_details" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_title">Thông tin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body d-flex flex-wrap">
+                    <input hidden id="id" value="0" />
+                    <div class="col-md-12">
+                        <label for="slot" class="form-label">Lô</label>
+                        <input type="text" class="form-control" id="slot" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="account" class="form-label">account</label>
+                        <input type="text" class="form-control" id="account" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="password" class="form-label">password</label>
+                        <input type="text" class="form-control" id="password" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="uid" class="form-label">uid</label>
+                        <input type="text" class="form-control" id="uid" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="token" class="form-label">token</label>
+                        <textarea type="text" class="form-control" rows="3" id="token"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex" style="justify-content: space-between;"><button type="button"
+                        class="btn btn-primary" onclick="save_()" data-dismiss="modal">Save</button><button
+                        type="button" class="btn btn-secondary" data-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="../js/authen_fuction.js"></script>
+    <script src="../js/fbuid_manager.js"></script>
+    <script src="../js/helper_manager.js"></script>
+    <script src="../js/permission.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+<script>
+    let ArrayDataInput = [];
+    let ArrayDataUpdate = [];
+    let ArrayDataInsert = [];
+    let main_table = document.getElementById('table_data').children[1];
+    init_users();
+    async function init_users() {
+        main_table.innerHTML = '';
+        const slotfilter = $("#slotname").val();
+        var dt = await fbuid_get_all();
+        if (dt) {
+            if (slotfilter.length > 0) {
+                dt = dt.filter(ft => ft.slot === slotfilter);
+            }
+            dt.forEach((item, index) => {
+                main_table.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>    
+                    <td>${item.slot}</td>    
+                    <td>${item.account}</td>    
+                    <td>${item.password}</td>    
+                    <td>${item.uid}</td>    
+                    <td>${item.token}</td>
+                    <td>
+                        ${button_action_tool(item.id, 'open_modal', ['btn', 'btn-sm', 'btn-primary'], 'edit')}
+                        ${button_action_tool(item.id, 'del_tool', ['btn', 'btn-sm', 'btn-danger'], 'delete')}
+                    </td>
+                </tr>
+            `;
+            });
+            $("#tableCaption").text(`Tổng số dòng : ${dt.length}`);
+            smoothy_ui_table();
+        }
+    }
+    // $(document).ready(function () {
+    //     $("#user_details").on('show.bs.modal', function () {
+    //         alert(params);
+    //     });
+    // });
+
+    async function open_modal(params) {
+        if (params != 0) {
+            var detail_dt = await fbuid_get_detail(params);
+            $('#id').val(detail_dt.id || 0);
+            $('#account').val(detail_dt.account || '');
+            $('#slot').val(detail_dt.slot || '');
+            $('#password').val(detail_dt.password || '');
+            $('#uid').val(detail_dt.uid || '');
+            $('#token').val(detail_dt.token || '');
+        } else {
+            $('#id').val(0);
+            $('#slot').val('');
+            $('#account').val('');
+            $('#password').val('');
+            $('#uid').val('');
+            $('#token').val('');
+
+        }
+        $('#user_details').modal('show');
+
+    }
+    async function checkArrayAccount(accounts) {
+        var url = `/api/fbuid/checkAccounts`;
+        var meth = 'POST';
+        let rs = await fbuid_checkAccount(url, accounts, meth);
+        return rs;
+    }
+
+    async function save_() {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
+            return;
+        }
+        var id = $("#id").val()
+        var account = $("#account").val()
+        var slot = $("#slot").val()
+        var password = $("#password").val()
+        var uid = $("#uid").val()
+        var token = $("#token").val()
+
+        const existed = await fbuid_get_by_acc(account);
+        if (!id && existed && existed.id > 0) {
+            alert("account đã tồn tại !")
+            return;
+        }
+
+        var url = `/api/fbuid`;
+        var meth = 'POST';
+        const formData = new FormData();
+
+        if (id != 0) {
+            meth = 'PUT';
+            url = `/api/fbuid/${id}`;
+        }
+        var data = { id, account, slot, password, uid, token };
+
+        let rs = await fbuid_save(url, data, meth);
+
+        init_users();
+    };
+
+    async function del_tool(id) {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
+            return;
+        }
+        let rs = await fbuid_del(id);
+        // const formData = new FormData();
+        // console.log('Success:', rs);
+        init_users();
+    }
+
+    async function runInputBugdata() {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ? Dữ liệu lớn có thể mất thời gian lâu hơn !')) {
+            return;
+        }
+        var urlinsert = `/api/fbuid_insertbigdata`;
+        var urlupdate = `/api/fbuid_updatebigdata`;
+        //POST la insert
+        if (ArrayDataUpdate.length > 0) {
+            if (ArrayDataInsert.length === 0) {
+                const rsI = await fbuid_saveBigdata(urlupdate, ArrayDataUpdate, 'PUT')
+                if (rsI.ok == 1) {
+                    alert("Đã cập nhật xong !");
+                    location.reload();
+                }
+            } else {
+                const [rsInsert, rsUpdate] = await Promise.all([
+                    fbuid_saveBigdata(urlinsert, ArrayDataInsert, 'POST'),
+                    fbuid_saveBigdata(urlupdate, ArrayDataUpdate, 'PUT')
+                ])
+                console.log(rsInsert, rsUpdate);
+                if (rsInsert.ok == 1 && rsUpdate.ok == 1) {
+                    alert("Đã cập nhật xong !");
+                    location.reload();
+                }
+            }
+        } else {
+            const rs = await fbuid_saveBigdata(urlinsert, ArrayDataInsert, 'POST');
+            if (rs.ok == 1) {
+                alert("Đã cập nhật xong !");
+                location.reload();
+            }
+        }
+
+    }
+
+
+
+    async function analysicInputBugdata() {
+        ArrayDataUpdate = [];
+        ArrayDataInsert = [];
+        ArrayDataInput = [];
+        var input = $("#inputBigData").val()
+        if (input.length === 0) return;
+        ArrayDataInput = input.split("\n").map(m => {
+            const [slot, account, password, uid, token] = m.split("|");
+            return { slot, account, password, uid, token };
+        })
+        const arrDistin = [...new Set(ArrayDataInput.map(m => m.account))];
+        if (arrDistin.length != ArrayDataInput.length) {
+            $("#statusDuplicate").text("Có");
+        }
+        $("#total").text(ArrayDataInput.length);
+        const checktedAccounts = await checkArrayAccount(arrDistin);
+        if (checktedAccounts) {
+            ArrayDataUpdate = checktedAccounts.map(m => {
+                const found = ArrayDataInput.find(f => f.account === m.account);
+                if (found) {
+                    return { ...m, uid: found.uid, token: found.token }
+                }
+                return m;
+            });
+            $("#totalUpdate").text(ArrayDataUpdate.length);
+            ArrayDataInsert = ArrayDataInput.filter(ft => !ArrayDataUpdate.find(f => f.account === ft.account));
+        } else {
+            ArrayDataInsert = ArrayDataInput;
+        }
+        $("#totalInsert").text(ArrayDataInsert.length);
+    }
+
+</script>
+
+</html>

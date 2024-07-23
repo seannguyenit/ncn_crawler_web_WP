@@ -25,6 +25,9 @@ module.exports = {
     },
     tool_m:  (req, res) => {
         res.sendFile(path.join(__dirname,'../../view/tool_m.html'))
+    },
+    fbuid:  (req, res) => {
+        res.sendFile(path.join(__dirname,'../../view/fbuid.html'))
     }
     // get_partial: (req,res)=>{
     //     let action = [req.params.action];

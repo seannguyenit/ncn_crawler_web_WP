@@ -25,12 +25,13 @@ routes(app)
 p_routes(app)
 
 app.use(express.static(path.join(__dirname, 'static')));
+app.use(express.json({ limit: '50mb' }));
 
 app.all('/proxy/:proxyUrl*', (req, res) => {
-    if(req.url.indexOf('http') > -1){
+    if (req.url.indexOf('http') > -1) {
         req.url = req.url.replace('/proxy/https:/', '/https://'); // Strip '/proxy' from the front of the URL, else the proxy won't work.
         req.url = req.url.replace('/proxy/http:/', '/http://'); // Strip '/proxy' from the front of the URL, else the proxy won't work.
-    }else{
+    } else {
         req.url = req.url.replace('/proxy/', '/http://'); // Strip '/proxy' from the front of the URL, else the proxy won't work.
     }
     // console.log('proxy get url : ', req.url);
