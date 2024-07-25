@@ -34,7 +34,7 @@
                     <div class="col-12 pt-5 pb-2">
                         <h3 id="titlePage"></h3>
                     </div>
-                    <div class="col-12 pt-5 pb-2 d-flex" style="align-items: center;">
+                    <div class="col-12 my-2 d-flex" style="align-items: center;">
                         <div>
                             <button onclick="open_modal(0)" class="btn btn-primary">Thêm 1 tk</button>
                             <button onclick="open_modal2()" class="btn btn-primary">Thêm/cập nhật
@@ -46,6 +46,13 @@
                             <button onclick="init_users()" class="btn btn-primary">Tìm</button>
                         </div>
                     </div>
+                    <div class="col-12 d-flex" style="align-items: center;">
+                        <div>Xuất dòng được chọn ra</div>
+                        <div>
+                            <button onclick="openExport(1)" class="btn btn-primary">Dạng acc|pass</button>
+                            <button onclick="openExport(2)" class="btn btn-primary">Dạng uid|acc|pass</button>
+                        </div>
+                    </div>
                     <h5 id="tableCaption"></h5>
                     <div class="col-12">
                         <table id="table_data"
@@ -53,6 +60,9 @@
                             width="100%">
                             <thead>
                                 <tr>
+                                    <th class="d-flex" style="justify-content: center;">
+                                        <input id="allcheck" name="allcheck" type="checkbox" onchange="checkall()" />
+                                    </th>
                                     <th>stt</th>
                                     <!-- <th>Lô</th> -->
                                     <th>account</th>
@@ -161,7 +171,26 @@
             </div>
         </div>
     </div>
-
+    <div class="modal fade" id="modal_export" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="modal_export" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_title">Xuất kết quả</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body d-flex flex-wrap">
+                    <div class="col-md-12">
+                        <textarea type="text" class="form-control" rows="15" id="exportPlace"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex" style="justify-content: space-between;"><button type="button"
+                        class="btn btn-secondary" data-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="../js/authen_fuction.js"></script>
     <script src="../js/fbuid_manager.js"></script>
@@ -177,6 +206,7 @@
         crossorigin="anonymous"></script>
 </body>
 <script>
+    let MainData = [];
     let ArrayDataInput = [];
     let ArrayDataUpdate = [];
     let ArrayDataInsert = [];
@@ -209,11 +239,20 @@
         }
         if (dt) {
             if (slotfilter.length > 0) {
-                dt = dt.filter(ft => ft.account.includes(slotfilter) || ft.uid.includes(slotfilter));
+                if (slotfilter.includes(',')) {
+                    const arrSelectUID = Array.from(slotfilter.split(",")).filter(ft => ft && ft.length > 0)
+                    dt = dt.filter(ft => arrSelectUID.includes(ft.account) || arrSelectUID.includes(ft.uid));
+                } else {
+                    dt = dt.filter(ft => ft.account === slotfilter || ft.uid === slotfilter);
+                }
             }
+            MainData = dt;
             dt.forEach((item, index) => {
                 main_table.innerHTML += `
                 <tr>
+                    <td class="d-flex" style="justify-content: center;">
+                          <input name="checkhere_${item.id}" type="checkbox" onchange="checkhere(${item.id})"/>
+                    </td>    
                     <td>${index + 1}</td>    
                     <td>${item.account}</td>    
                     <td>${item.password}</td>    
@@ -230,11 +269,38 @@
             smoothy_ui_table();
         }
     }
-    // $(document).ready(function () {
-    //     $("#user_details").on('show.bs.modal', function () {
-    //         alert(params);
-    //     });
-    // });
+
+    //type 1 acc|pass ; type 2 : uid|acc|pass
+    async function openExport(type) {
+        const mainCheckPlace = Array.from(main_table.querySelectorAll("input")).filter(f => f.checked);
+        if (mainCheckPlace.length === 0) {
+            alert("Chưa chọn dòng !")
+            return;
+        }
+        const arrIdsExport = mainCheckPlace.map(m => Number(m.name.split("_")[1]));
+        $("#exportPlace").val(MainData.filter(ft => arrIdsExport.includes(ft.id)).map(m => {
+            const _str = `${m.account}|${m.password}`;
+            if (type === 2) {
+                return `${m.uid}|${_str}`
+            } else {
+                return _str;
+            }
+        }).join("\n"))
+        $('#modal_export').modal('show');
+    }
+
+    async function checkall() {
+        const checked = document.getElementById("allcheck").checked;
+        Array.from(main_table.querySelectorAll("input")).forEach(item => {
+            item.checked = checked;
+        })
+    }
+
+    async function checkhere(id) {
+
+    }
+
+
     async function open_modal2(params) {
         $("#modal_title2").text(`Điều chỉnh Lô "${CurrentSlot?.name || ""}"`)
         $('#user_details2').modal('show');
@@ -352,7 +418,7 @@
         ArrayDataInput = input.split("\n").map(m => {
             const [account, password, uid, token] = m.split("|");
             return { slotId: CurrentSlot?.id || 0, account: account || "", password: password || "", uid: uid || "", token: token || "" };
-        }).filter(ft=>ft.account);
+        }).filter(ft => ft.account);
         const arrDistin = [...new Set(ArrayDataInput.map(m => m.account))];
         if (arrDistin.length != ArrayDataInput.length) {
             $("#statusDuplicate").text("Có");

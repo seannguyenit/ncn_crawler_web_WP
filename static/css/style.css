@@ -71,6 +71,15 @@ td {
     overflow-wrap: anywhere;
 }
 
+table input {
+    width: 30px;
+    height: 30px;
+}
+
+table input {
+    width: 30px;
+    height: 30px;
+}
 
 table{
     color: white !important;
