@@ -29,4 +29,6 @@ module.exports = function (app) {
     .get(homeCtrl.fbuid);
   app.route('/home/tool_m')
     .get(homeCtrl.tool_m);
+  app.route('/home/slot')
+    .get(homeCtrl.slot);
 };

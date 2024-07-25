@@ -13,6 +13,21 @@ async function fbuid_get_all() {
         });
 }
 
+
+async function fbuid_get_by_slotId(id) {
+    // var cr_u = get_cr_user();
+    return await fetch(`/api/fbuid_slot/${id}` /*, options */)
+        .then((response) => response.json())
+        .then((data) => {
+            return data;
+        })
+        .catch((error) => {
+            console.warn(error);
+            return undefined;
+        });
+}
+
+
 async function fbuid_get_detail(id) {
     // var cr_u = get_cr_user();
     return await fetch(`/api/fbuid/${id}` /*, options */)

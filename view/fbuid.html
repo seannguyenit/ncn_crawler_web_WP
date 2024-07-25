@@ -31,16 +31,19 @@
         <div class="col-9">
             <div class="col-12" style="height: 90vh;overflow-y: scroll;scrollbar-width: thin;">
                 <div class="container">
+                    <div class="col-12 pt-5 pb-2">
+                        <h3 id="titlePage"></h3>
+                    </div>
                     <div class="col-12 pt-5 pb-2 d-flex" style="align-items: center;">
                         <div>
-                            <button onclick="open_modal(0)" class="btn btn-primary">Tạo mới</button>
-                            <a href="#inputBigData" class="btn btn-primary" style="margin-left: 50px;">Cập nhật số lượng
-                                lớn</a>
+                            <button onclick="open_modal(0)" class="btn btn-primary">Thêm 1 tk</button>
+                            <button onclick="open_modal2()" class="btn btn-primary">Thêm/cập nhật
+                                nhiều tk</button>
                         </div>
                         <div class="d-flex" style="width: 50%; align-items: center; margin-left: 50px;">
-                            <label for="slotname" class="form-label" style="width: 150px;">Lọc theo Lô</label>
+                            <label for="slotname" class="form-label" style="width: 200px;">tìm account/uid</label>
                             <input type="text" class="form-control" id="slotname" />
-                            <button onclick="init_users()" class="btn btn-primary">Lọc</button>
+                            <button onclick="init_users()" class="btn btn-primary">Tìm</button>
                         </div>
                     </div>
                     <h5 id="tableCaption"></h5>
@@ -51,7 +54,7 @@
                             <thead>
                                 <tr>
                                     <th>stt</th>
-                                    <th>Lô</th>
+                                    <!-- <th>Lô</th> -->
                                     <th>account</th>
                                     <th>pass</th>
                                     <th>uid</th>
@@ -63,43 +66,6 @@
 
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <div class="col-12" style="max-height: 90vh;overflow-y: scroll;scrollbar-width: thin;">
-                <div class="col-12">
-                    <div class="col-12 pt-5 pb-2">
-                        <h2>Cập nhật số lượng lớn</h2>
-                    </div>
-                    <div class="col-12 d-flex" style="align-items: center;">
-                        <div class="col-7">
-                            <label for="inputBigData" class="form-label">Nhập vào Lô|account|password|uid|token</label>
-                            <textarea style="width: 100%;" id="inputBigData" rows="15"></textarea>
-                        </div>
-                        <div class="col-1">
-                            <button class="btn-primary" onclick="analysicInputBugdata()">Run(1)</button>
-                        </div>
-                        <div class="col-4">
-                            <div class="d-blog">
-                                <div>
-                                    Trạng thái trùng dữ liệu : <span id="statusDuplicate">Không</span>
-                                </div>
-                                <div>
-                                    Tổng số : <span id="total"></span>
-                                </div>
-                                <div>
-                                    Thêm mới : <span id="totalInsert"></span>
-                                </div>
-                                <div>
-                                    Cập nhật : <span id="totalUpdate"></span>
-                                </div>
-                                <div class="d-flex flex-row">
-                                    <button onclick="runInputBugdata()" class="btn btn-primary">Xác nhận
-                                        chạy(2)</button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -117,10 +83,6 @@
                 </div>
                 <div class="modal-body d-flex flex-wrap">
                     <input hidden id="id" value="0" />
-                    <div class="col-md-12">
-                        <label for="slot" class="form-label">Lô</label>
-                        <input type="text" class="form-control" id="slot" required>
-                    </div>
                     <div class="col-md-12">
                         <label for="account" class="form-label">account</label>
                         <input type="text" class="form-control" id="account" required>
@@ -144,6 +106,61 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="user_details2" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="user_details2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width: 800px; margin-left: -100px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_title2"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body d-flex flex-wrap">
+                    <div class="col-12">
+                        <div class="col-12">
+                            <h5>Cập nhật số lượng lớn</h5>
+                        </div>
+                        <div class="col-12 d-flex" style="align-items: center;">
+                            <div class="col-6">
+                                <label for="inputBigData" class="form-label">Nhập vào account|password|uid|token (Lưu ý
+                                    ví
+                                    dụ chỉ có 2 cột acc1|pass1 thì sẽ chỉ lưu 2 cái account và password)</label>
+                                <textarea style="width: 100%;" id="inputBigData" rows="10"></textarea>
+                            </div>
+                            <div class="col-2">
+                                <button class="btn-primary" onclick="analysicInputBugdata()">Run(1)</button>
+                            </div>
+                            <div class="col-4">
+                                <div class="d-blog">
+                                    <div>
+                                        Trạng thái trùng dữ liệu : <span id="statusDuplicate">Không</span>
+                                    </div>
+                                    <div>
+                                        Tổng số : <span id="total"></span>
+                                    </div>
+                                    <div>
+                                        Thêm mới : <span id="totalInsert"></span>
+                                    </div>
+                                    <div>
+                                        Cập nhật : <span id="totalUpdate"></span>
+                                    </div>
+                                    <div class="d-flex flex-row">
+                                        <button onclick="runInputBugdata()" class="btn btn-primary">Xác nhận
+                                            chạy(2)</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex" style="justify-content: space-between;">
+                    <!-- <button type="button" class="btn btn-primary" onclick="save_()" data-dismiss="modal">Save</button> -->
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="../js/authen_fuction.js"></script>
@@ -163,21 +180,41 @@
     let ArrayDataInput = [];
     let ArrayDataUpdate = [];
     let ArrayDataInsert = [];
+    let CurrentSlot;
     let main_table = document.getElementById('table_data').children[1];
     init_users();
+    async function initCurrentSlot() {
+        try {
+            const _url = new URL(location.href);
+            debugger
+            const slotId = Number(_url.searchParams.get("id"))
+            CurrentSlot = await fetch(`/api/slot/${slotId}`).then(rs => rs.json())
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     async function init_users() {
+        await initCurrentSlot();
+        if (CurrentSlot) {
+            $("#titlePage").text(`Danh sách tk của lô "${CurrentSlot.name}"`)
+        }
         main_table.innerHTML = '';
         const slotfilter = $("#slotname").val();
-        var dt = await fbuid_get_all();
+        var dt;
+        if (CurrentSlot) {
+            dt = await fbuid_get_by_slotId(CurrentSlot.id);
+        } else {
+            dt = await fbuid_get_all();
+        }
         if (dt) {
             if (slotfilter.length > 0) {
-                dt = dt.filter(ft => ft.slot === slotfilter);
+                dt = dt.filter(ft => ft.account.includes(slotfilter) || ft.uid.includes(slotfilter));
             }
             dt.forEach((item, index) => {
                 main_table.innerHTML += `
                 <tr>
                     <td>${index + 1}</td>    
-                    <td>${item.slot}</td>    
                     <td>${item.account}</td>    
                     <td>${item.password}</td>    
                     <td>${item.uid}</td>    
@@ -198,19 +235,20 @@
     //         alert(params);
     //     });
     // });
-
+    async function open_modal2(params) {
+        $("#modal_title2").text(`Điều chỉnh Lô "${CurrentSlot?.name || ""}"`)
+        $('#user_details2').modal('show');
+    }
     async function open_modal(params) {
         if (params != 0) {
             var detail_dt = await fbuid_get_detail(params);
             $('#id').val(detail_dt.id || 0);
             $('#account').val(detail_dt.account || '');
-            $('#slot').val(detail_dt.slot || '');
             $('#password').val(detail_dt.password || '');
             $('#uid').val(detail_dt.uid || '');
             $('#token').val(detail_dt.token || '');
         } else {
             $('#id').val(0);
-            $('#slot').val('');
             $('#account').val('');
             $('#password').val('');
             $('#uid').val('');
@@ -233,7 +271,6 @@
         }
         var id = $("#id").val()
         var account = $("#account").val()
-        var slot = $("#slot").val()
         var password = $("#password").val()
         var uid = $("#uid").val()
         var token = $("#token").val()
@@ -252,7 +289,7 @@
             meth = 'PUT';
             url = `/api/fbuid/${id}`;
         }
-        var data = { id, account, slot, password, uid, token };
+        var data = { id, account, slotId: CurrentSlot?.id || 0, password, uid, token };
 
         let rs = await fbuid_save(url, data, meth);
 
@@ -313,9 +350,9 @@
         var input = $("#inputBigData").val()
         if (input.length === 0) return;
         ArrayDataInput = input.split("\n").map(m => {
-            const [slot, account, password, uid, token] = m.split("|");
-            return { slot, account, password, uid, token };
-        })
+            const [account, password, uid, token] = m.split("|");
+            return { slotId: CurrentSlot?.id || 0, account: account || "", password: password || "", uid: uid || "", token: token || "" };
+        }).filter(ft=>ft.account);
         const arrDistin = [...new Set(ArrayDataInput.map(m => m.account))];
         if (arrDistin.length != ArrayDataInput.length) {
             $("#statusDuplicate").text("Có");

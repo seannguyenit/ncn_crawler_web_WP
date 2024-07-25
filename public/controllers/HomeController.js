@@ -28,6 +28,9 @@ module.exports = {
     },
     fbuid:  (req, res) => {
         res.sendFile(path.join(__dirname,'../../view/fbuid.html'))
+    },
+    slot:  (req, res) => {
+        res.sendFile(path.join(__dirname,'../../view/slot.html'))
     }
     // get_partial: (req,res)=>{
     //     let action = [req.params.action];

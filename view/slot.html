@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>User</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body class="body-bg-custom">
+    <div class="col-12 d-flex">
+        <div class="col-3">
+            <a class="navbar-brand com-name" href="/home/notice">ncnmedia</a>
+            <div id="main_menu_nav">
+                <ul id="main_menu" class="list-group">
+                    <li class="list-group-item"><a>Item</a>
+                        <ul class="list-group">
+                            <li class="list-group-item active">Active item</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="col-12">
+                <div class="container">
+                    <div class="col-12 pt-5 pb-2">
+                        <h3>Quản lý lô</h3>
+                    </div>
+                    <div class="col-12 pt-5 pb-2">
+                        <button onclick="open_modal(0)" class="btn btn-primary">Tạo mới</button>
+                    </div>
+                    <div class="col-12">
+                        <table id="table_data" class="tablemanager table table-striped table-bordered table-sm"
+                            cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>stt</th>
+                                    <th>tên lô</th>
+                                    <th class="disableFilterBy">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="slot_details" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="slot_details" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width: 800px;margin-left: -100px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_title">Thông tin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body d-flex flex-wrap">
+                    <input hidden id="slot_id" value="0" />
+                    <div class="col-md-12">
+                        <label for="name" class="form-label">Tên lô</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="inputBigData" class="form-label">Nhập vào account|password|uid|token (Lưu ý
+                            ví
+                            dụ chỉ có 2 cột acc1|pass1 thì sẽ chỉ lưu 2 cái account và password)</label>
+                        <textarea style="width: 100%;" id="inputBigData" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex" style="justify-content: space-between;"><button type="button"
+                        class="btn btn-primary" onclick="save_()" data-dismiss="modal">Save</button><button
+                        type="button" class="btn btn-secondary" data-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="../js/authen_fuction.js"></script>
+    <script src="../js/slot_manager.js"></script>
+    <script src="../js/helper_manager.js"></script>
+    <script src="../js/permission.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+<script>
+    let ArrayDataInput = [];
+    let ArrayDataUpdate = [];
+    let ArrayDataInsert = [];
+    let main_table = document.getElementById('table_data').children[1];
+    init_users();
+    async function init_users() {
+        main_table.innerHTML = '';
+        var dt = await slot_get_all();
+        debugger
+        if (dt) {
+            dt.forEach((item, index) => {
+                main_table.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>    
+                    <td>${item.name}</td>    
+                    <td>
+                        ${button_action_tool(item.id, 'gotoSlotDetails', ['btn', 'btn-sm', 'btn-primary'], 'DS account')}
+                        ${button_action_tool(item.id, 'open_modal', ['btn', 'btn-sm', 'btn-primary'], 'edit')}
+                        ${button_action_tool(item.id, 'del_slot', ['btn', 'btn-sm', 'btn-danger'], 'delete')}
+                    </td>
+                </tr>
+            `;
+            });
+            smoothy_ui_table();
+        }
+    }
+    // $(document).ready(function () {
+    //     $("#slot_details").on('show.bs.modal', function () {
+    //         alert(params);
+    //     });
+    // });
+    async function open_modal(params) {
+        if (params != 0) {
+            var detail_dt = await slot_get_detail(params);
+            $('#slot_id').val(detail_dt.id || 0);
+            $('#name').val(detail_dt.name || '');
+        } else {
+            $('#slot_id').val(0);
+            $('#name').val('');
+
+        }
+        $('#slot_details').modal('show');
+
+    }
+    async function save_() {
+        var inputBigDataStr = $("#inputBigData").val()
+        if (inputBigDataStr.length === 0) {
+            alert("Vui lòng nhập vào danh sách account theo mẫu")
+            return;
+        }
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
+            return;
+        }
+        var id = $("#slot_id").val()
+        var name = $("#name").val()
+        var url = `/api/slot`;
+        var meth = 'POST';
+        const formData = new FormData();
+
+        if (id != 0) {
+            meth = 'PUT';
+            url = `/api/slot/${id}`;
+        }
+        var data = { name, note: "" };
+
+        let rs = await slot_save(url, data, meth);
+        if (rs.ok === 1) {
+            await runInputBugdata(rs.id);
+            init_users();
+        } else {
+            alert("Không thành công !")
+            return;
+        }
+    };
+
+    async function del_slot(id) {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
+            return;
+        }
+        let rs = await slot_del(id);
+        // const formData = new FormData();
+        // console.log('Success:', rs);
+        init_users();
+    }
+
+    async function gotoSlotDetails(id) {
+        location.href = `/home/fbuid?id=${id}`
+    }
+
+
+    async function runInputBugdata(slotId) {
+        // if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ? Dữ liệu lớn có thể mất thời gian lâu hơn !')) {
+        //     return;
+        // }
+        await analysicInputBugdata(slotId);
+        var urlinsert = `/api/fbuid_insertbigdata`;
+        var urlupdate = `/api/fbuid_updatebigdata`;
+
+        const upDate = async () => {
+            return await fetch(urlupdate, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(ArrayDataUpdate)
+            }).then(rs => rs.json())
+        }
+
+        const inSert = async () => {
+            return await fetch(urlinsert, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(ArrayDataInsert)
+            }).then(rs => rs.json())
+        }
+
+        //POST la insert
+        if (ArrayDataUpdate.length > 0) {
+            if (ArrayDataInsert.length === 0) {
+                const rsI = await upDate();
+                if (rsI.ok == 1) {
+                    alert("Đã cập nhật xong !");
+                    location.reload();
+                }
+            } else {
+                const [rsInsert, rsUpdate] = await Promise.all([
+                    inSert(),
+                    upDate()
+                ])
+                if (rsInsert.ok == 1 && rsUpdate.ok == 1) {
+                    alert("Đã cập nhật xong !");
+                    location.reload();
+                }
+            }
+        } else {
+            const rs = await inSert();
+            if (rs.ok == 1) {
+                alert("Đã cập nhật xong !");
+                location.reload();
+            }
+        }
+
+    }
+
+
+
+    async function analysicInputBugdata(slotId) {
+        ArrayDataUpdate = [];
+        ArrayDataInsert = [];
+        ArrayDataInput = [];
+        var input = $("#inputBigData").val()
+        const checkArrayAccount = async (accounts) => {
+            var url = `/api/fbuid/checkAccounts`;
+            var meth = 'POST';
+            let rs = await fetch(url, {
+                method: meth,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(accounts)
+            }).then(r => r.json());
+            return rs;
+        }
+        if (input.length === 0) return;
+        ArrayDataInput = input.split("\n").map(m => {
+            const [account, password, uid, token] = m.split("|");
+            return { slotId: slotId, account: account || "", password: password || "", uid: uid || "", token: token || "" };
+        }).filter(ft => ft.account);
+        const arrDistin = [...new Set(ArrayDataInput.map(m => m.account))];
+        // if (arrDistin.length != ArrayDataInput.length) {
+        //     const lstDup = arrDistin.filter(ft => ArrayDataInput.filter(ft2 => ft2.account === ft.account).length > 1);
+        //     alert(`Bị trùng dữ liệu ở account : ${lstDup.map(m => m.account).join(",")}`)
+        //     return;
+        // }
+        const checktedAccounts = await checkArrayAccount(arrDistin);
+        if (checktedAccounts) {
+            ArrayDataUpdate = checktedAccounts.map(m => {
+                const found = ArrayDataInput.find(f => f.account === m.account);
+                if (found) {
+                    return { ...m, uid: found.uid, token: found.token }
+                }
+                return m;
+            });
+            ArrayDataInsert = ArrayDataInput.filter(ft => !ArrayDataUpdate.find(f => f.account === ft.account));
+        } else {
+            ArrayDataInsert = ArrayDataInput;
+        }
+    }
+
+
+</script>
+
+</html>

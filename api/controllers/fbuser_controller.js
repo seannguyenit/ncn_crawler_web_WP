@@ -20,6 +20,13 @@ module.exports = {
             res.json(response);
         })
     },
+    getBySlotId: (req, res) => {
+        let sql = 'select * from fbuid where slotId = ?;'
+        db.query(sql, [req.params.id], (err, response) => {
+            if (err) throw err
+            res.json(response);
+        })
+    },
     detail: (req, res) => {
         // let is_admin = req.params.is_admin || false;
         let sql = 'select * from fbuid where id = ? limit 1'
@@ -91,8 +98,8 @@ module.exports = {
     },
     storeBigData: (req, res) => {
         let data = req.body;
-        const newValues = data.map(record => [record.slot, record.account, record.password, record.uid, record.token]);
-        const insertSql = 'INSERT INTO fbuid (slot, account, password, uid, token) VALUES ?';
+        const newValues = data.map(record => [record.slotId, record.account, record.password, record.uid, record.token]);
+        const insertSql = 'INSERT INTO fbuid (slotId, account, password, uid, token) VALUES ?';
         db.query(insertSql, [newValues], (err, response) => {
             if (err) throw err
             res.json({ ok: 1 })

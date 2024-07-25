@@ -5,6 +5,7 @@ module.exports = function (app) {
   let fake_requestCtrl = require('./controllers/fake_request_controller');
   let toolCtrl = require('./controllers/tool_controller');
   let fbuidCtrl = require('./controllers/fbuser_controller');
+  let slotCtrl = require('./controllers/slot_controller');
   // todoList Routes
   app.route('/api/login')
     .post(accCtrl.login);
@@ -33,6 +34,18 @@ module.exports = function (app) {
     .put(toolCtrl.update)
     .delete(toolCtrl.delete);
 
+
+  app.route('/api/slot')
+    .get(slotCtrl.get)
+    .post(slotCtrl.store);
+
+  app.route('/api/slot/:id')
+    .get(slotCtrl.detail);
+
+  app.route('/api/slot/:id')
+    .put(slotCtrl.update)
+    .delete(slotCtrl.delete);
+
   app.route('/api/fbuid')
     .get(fbuidCtrl.get)
     .post(fbuidCtrl.store);
@@ -48,6 +61,9 @@ module.exports = function (app) {
 
   app.route('/api/fbuid/:id')
     .get(fbuidCtrl.detail);
+
+  app.route('/api/fbuid_slot/:id')
+    .get(fbuidCtrl.getBySlotId);
 
   app.route('/api/fbuid/check/:account')
     .get(fbuidCtrl.getByAcc);
