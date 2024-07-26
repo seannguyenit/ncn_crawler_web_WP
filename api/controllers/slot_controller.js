@@ -7,8 +7,16 @@ const db = require('../db')
 
 module.exports = {
     get: (req, res) => {
-        let sql = 'select * from slot'
-        db.query(sql, (err, response) => {
+        const cookieHeader = req.headers.cookie;
+        // Parse the cookie string
+        const cookies = cookieHeader.split('; ').reduce((acc, cookie) => {
+            const [name, value] = cookie.split('=');
+            acc[name] = value;
+            return acc;
+        }, {});
+        const userId = (JSON.parse(cookies.user)).id;
+        let sql = 'select * from slot where userId = ?'
+        db.query(sql, [userId], (err, response) => {
             if (err) throw err
             res.json(response)
         })
@@ -31,9 +39,17 @@ module.exports = {
         })
     },
     store: (req, res) => {
+        const cookieHeader = req.headers.cookie;
+        // Parse the cookie string
+        const cookies = cookieHeader.split('; ').reduce((acc, cookie) => {
+            const [name, value] = cookie.split('=');
+            acc[name] = value;
+            return acc;
+        }, {});
+        const userId = (JSON.parse(cookies.user)).id;
         let data = req.body;
         let sql = 'INSERT INTO slot SET ?;'
-        db.query(sql, [data], (err, response) => {
+        db.query(sql, [{ ...data, userId }], (err, response) => {
             if (err) throw err
             res.json({ ok: 1, id: response.insertId })
         })

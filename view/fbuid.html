@@ -47,10 +47,11 @@
                         </div>
                     </div>
                     <div class="col-12 my-2 d-flex" style="align-items: center;">
-                        <div>Xuất dòng được chọn ra</div>
+                        <div>Xuất ra</div>
                         <div>
-                            <button onclick="openExport(1)" class="btn btn-primary">Dạng acc|pass</button>
-                            <button onclick="openExport(2)" class="btn btn-primary">Dạng uid|acc|pass</button>
+                            <button onclick="openExport(1)" class="btn btn-primary">acc|pass</button>
+                            <button onclick="openExport(2)" class="btn btn-primary">uid|acc|pass</button>
+                            <button onclick="openExport(3)" class="btn btn-primary">uid|acc|pass|token</button>
                         </div>
                     </div>
                     <div class="col-12 d-flex" style="align-items: center;">
@@ -86,6 +87,7 @@
                     </div>
                 </div>
             </div>
+            <a class="btn-primary btn m-2" href="/home/slot">Trở về danh sách Lô</a>
         </div>
     </div>
     <div class="modal fade" id="user_details" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -306,8 +308,10 @@
             const _str = `${m.account}|${m.password}`;
             if (type === 2) {
                 return `${m.uid}|${_str}`
-            } else {
+            } else if (type === 1) {
                 return _str;
+            } else {
+                return `${m.uid}|${_str}|${m.token}`;
             }
         }).join("\n"))
         $('#modal_export').modal('show');
