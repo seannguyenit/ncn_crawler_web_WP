@@ -146,16 +146,18 @@
 
     }
     async function save_() {
+
+        var id = $("#slot_id").val()
+        var name = $("#name").val()
+
         var inputBigDataStr = $("#inputBigData").val()
-        if (inputBigDataStr.length === 0) {
+        if (id === 0 && inputBigDataStr.length === 0) {
             alert("Vui lòng nhập vào danh sách account theo mẫu")
             return;
         }
         if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
             return;
         }
-        var id = $("#slot_id").val()
-        var name = $("#name").val()
         var url = `/api/slot`;
         var meth = 'POST';
         const formData = new FormData();
@@ -168,7 +170,9 @@
 
         let rs = await slot_save(url, data, meth);
         if (rs.ok === 1) {
-            await runInputBugdata(rs.id);
+            if (inputBigDataStr.length > 0) {
+                await runInputBugdata(rs.id);
+            }
             init_users();
         } else {
             alert("Không thành công !")

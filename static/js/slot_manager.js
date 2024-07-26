@@ -19,7 +19,7 @@ async function slot_get_detail(id) {
         .then((response) => response.json())
         .then((data) => {
             if (data != undefined) {
-                return data[0];
+                return data;
             }
         })
         .catch((error) => {

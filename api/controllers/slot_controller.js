@@ -55,7 +55,11 @@ module.exports = {
         })
     },
     delete: (req, res) => {
-        let sql = 'DELETE FROM slot WHERE id = ?'
+        let sql1 = 'DELETE FROM fbuid WHERE slotId = ?;'
+        db.query(sql1, [req.params.id], (err, response) => {
+            // if (err) throw err
+        })
+        let sql = 'DELETE FROM slot WHERE id = ?;'
         db.query(sql, [req.params.id], (err, response) => {
             if (err) throw err
             res.json({ message: 'Delete success!' })
