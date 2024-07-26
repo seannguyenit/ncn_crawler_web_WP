@@ -121,4 +121,13 @@ module.exports = {
             res.json({ message: 'Delete success!' })
         })
     },
+    deleteMultiple: (req, res) => {
+        let data = req.body;
+        const dt = [...new Set(data)];
+        let sql = 'DELETE FROM fbuid WHERE id IN (?)'
+        db.query(sql, [dt], (err, response) => {
+            if (err) throw err
+            res.json({ ok: 1 })
+        })
+    },
 }

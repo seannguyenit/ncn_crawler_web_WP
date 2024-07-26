@@ -42,15 +42,22 @@
                         </div>
                         <div class="d-flex" style="width: 50%; align-items: center; margin-left: 50px;">
                             <label for="slotname" class="form-label" style="width: 200px;">tìm account/uid</label>
-                            <input type="text" class="form-control" id="slotname" />
+                            <textarea type="text" class="form-control" id="slotname"></textarea>
                             <button onclick="init_users()" class="btn btn-primary">Tìm</button>
                         </div>
                     </div>
-                    <div class="col-12 d-flex" style="align-items: center;">
+                    <div class="col-12 my-2 d-flex" style="align-items: center;">
                         <div>Xuất dòng được chọn ra</div>
                         <div>
                             <button onclick="openExport(1)" class="btn btn-primary">Dạng acc|pass</button>
                             <button onclick="openExport(2)" class="btn btn-primary">Dạng uid|acc|pass</button>
+                        </div>
+                    </div>
+                    <div class="col-12 d-flex" style="align-items: center;">
+                        <div>
+                            <button onclick="deleteMulti()" class="btn btn-danger">Xoá dòng được chọn</button>
+                            <button onclick="open_modal_changeuids()" class="btn btn-primary">Sửa uid các dòng được
+                                chọn</button>
                         </div>
                     </div>
                     <h5 id="tableCaption"></h5>
@@ -134,8 +141,7 @@
                         <div class="col-12 d-flex" style="align-items: center;">
                             <div class="col-6">
                                 <label for="inputBigData" class="form-label">Nhập vào account|password|uid|token (Lưu ý
-                                    ví
-                                    dụ chỉ có 2 cột acc1|pass1 thì sẽ chỉ lưu 2 cái account và password)</label>
+                                    ví dụ chỉ có 2 cột acc1|pass1 thì sẽ chỉ lưu 2 cái account và password. Trường hợp cập nhật : căn cứ vào account để cập nhật nếu không có account thì sẽ tính là tạo mới)</label>
                                 <textarea style="width: 100%;" id="inputBigData" rows="10"></textarea>
                             </div>
                             <div class="col-2">
@@ -191,6 +197,32 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="user_details_multi" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="user_details" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_title">Thông tin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body d-flex flex-wrap">
+                    <div class="col-md-12">
+                        <label for="uidmuti" class="form-label">uid</label>
+                        <input type="text" class="form-control" id="uidmuti" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="token" class="form-label">token</label>
+                        <textarea type="text" class="form-control" rows="3" id="tokenmuti"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex" style="justify-content: space-between;"><button type="button"
+                        class="btn btn-primary" onclick="changeUids()" data-dismiss="modal">Save</button><button
+                        type="button" class="btn btn-secondary" data-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="../js/authen_fuction.js"></script>
     <script src="../js/fbuid_manager.js"></script>
@@ -216,7 +248,6 @@
     async function initCurrentSlot() {
         try {
             const _url = new URL(location.href);
-            debugger
             const slotId = Number(_url.searchParams.get("id"))
             CurrentSlot = await fetch(`/api/slot/${slotId}`).then(rs => rs.json())
         } catch (error) {
@@ -230,7 +261,7 @@
             $("#titlePage").text(`Danh sách tk của lô "${CurrentSlot.name}"`)
         }
         main_table.innerHTML = '';
-        const slotfilter = $("#slotname").val();
+        const slotfilter = $("#slotname").val().split("\n").filter(ft => ft.length > 0);
         var dt;
         if (CurrentSlot) {
             dt = await fbuid_get_by_slotId(CurrentSlot.id);
@@ -239,12 +270,7 @@
         }
         if (dt) {
             if (slotfilter.length > 0) {
-                if (slotfilter.includes(',')) {
-                    const arrSelectUID = Array.from(slotfilter.split(",")).filter(ft => ft && ft.length > 0)
-                    dt = dt.filter(ft => arrSelectUID.includes(ft.account) || arrSelectUID.includes(ft.uid));
-                } else {
-                    dt = dt.filter(ft => ft.account === slotfilter || ft.uid === slotfilter);
-                }
+                dt = dt.filter(ft => slotfilter.includes(ft.account) || slotfilter.includes(ft.uid));
             }
             MainData = dt;
             dt.forEach((item, index) => {
@@ -288,6 +314,53 @@
         }).join("\n"))
         $('#modal_export').modal('show');
     }
+
+    async function deleteMulti() {
+        const mainCheckPlace = Array.from(main_table.querySelectorAll("input")).filter(f => f.checked);
+        if (mainCheckPlace.length === 0) {
+            alert("Chưa chọn dòng !")
+            return;
+        }
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
+            return;
+        }
+        const arrIds = mainCheckPlace.map(m => Number(m.name.split("_")[1]));
+        await fbuid_delMuti(arrIds);
+        alert("đã xoá !");
+        location.reload();
+    }
+
+    async function open_modal_changeuids() {
+        const mainCheckPlace = Array.from(main_table.querySelectorAll("input")).filter(f => f.checked);
+        if (mainCheckPlace.length === 0) {
+            alert("Chưa chọn dòng !")
+            return;
+        }
+        $('#user_details_multi').modal('show');
+    }
+
+    async function changeUids() {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi dữ liệu ?')) {
+            return;
+        }
+        const mainCheckPlace = Array.from(main_table.querySelectorAll("input")).filter(f => f.checked);
+        const arrIds = mainCheckPlace.map(m => Number(m.name.split("_")[1]));
+        const selectData = MainData.filter(ft => arrIds.includes(ft.id));
+        const dt = {};
+        const uid = $("#uidmuti").val();
+        const token = $("#tokenmuti").val();
+        if (uid.length > 0) {
+            dt.uid = uid;
+        }
+        if (token.length > 0) {
+            dt.token = token;
+        }
+        var urlupdate = `/api/fbuid_updatebigdata`;
+        await fbuid_saveBigdata(urlupdate, selectData.map(m => ({ ...m, ...dt })), 'PUT')
+        alert("Đã cập nhật xong !")
+        location.reload();
+    }
+
 
     async function checkall() {
         const checked = document.getElementById("allcheck").checked;

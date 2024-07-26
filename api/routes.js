@@ -48,7 +48,8 @@ module.exports = function (app) {
 
   app.route('/api/fbuid')
     .get(fbuidCtrl.get)
-    .post(fbuidCtrl.store);
+    .post(fbuidCtrl.store)
+    .delete(fbuidCtrl.deleteMultiple);
 
   app.route('/api/fbuid_insertbigdata')
     .post(fbuidCtrl.storeBigData)

@@ -134,3 +134,24 @@ async function fbuid_del(id) {
             console.error('Error:', error);
         });
 }
+
+async function fbuid_delMuti(arrayId) {
+    var url = `/api/fbuid`;
+    var meth = 'DELETE';
+    return await fetch(url, {
+        method: meth, // or 'PUT'
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(arrayId)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data != undefined) {
+                return data || {};
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
