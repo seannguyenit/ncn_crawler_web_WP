@@ -141,7 +141,9 @@
                         <div class="col-12 d-flex" style="align-items: center;">
                             <div class="col-6">
                                 <label for="inputBigData" class="form-label">Nhập vào account|password|uid|token (Lưu ý
-                                    ví dụ chỉ có 2 cột acc1|pass1 thì sẽ chỉ lưu 2 cái account và password. Trường hợp cập nhật : căn cứ vào account để cập nhật nếu không có account thì sẽ tính là tạo mới)</label>
+                                    ví dụ chỉ có 2 cột acc1|pass1 thì sẽ chỉ lưu 2 cái account và password. Trường hợp
+                                    cập nhật : căn cứ vào account để cập nhật nếu không có account thì sẽ tính là tạo
+                                    mới)</label>
                                 <textarea style="width: 100%;" id="inputBigData" rows="10"></textarea>
                             </div>
                             <div class="col-2">
@@ -209,12 +211,8 @@
                 </div>
                 <div class="modal-body d-flex flex-wrap">
                     <div class="col-md-12">
-                        <label for="uidmuti" class="form-label">uid</label>
-                        <input type="text" class="form-control" id="uidmuti" required>
-                    </div>
-                    <div class="col-md-12">
-                        <label for="token" class="form-label">token</label>
-                        <textarea type="text" class="form-control" rows="3" id="tokenmuti"></textarea>
+                        <label for="token" class="form-label">UID</label>
+                        <textarea type="text" class="form-control" rows="10" id="inputmuti"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer d-flex" style="justify-content: space-between;"><button type="button"
@@ -346,17 +344,13 @@
         const mainCheckPlace = Array.from(main_table.querySelectorAll("input")).filter(f => f.checked);
         const arrIds = mainCheckPlace.map(m => Number(m.name.split("_")[1]));
         const selectData = MainData.filter(ft => arrIds.includes(ft.id));
-        const dt = {};
-        const uid = $("#uidmuti").val();
-        const token = $("#tokenmuti").val();
-        if (uid.length > 0) {
-            dt.uid = uid;
-        }
-        if (token.length > 0) {
-            dt.token = token;
+        const ui_token = $("#inputmuti").val().split('\n').filter(ft => ft.length > 0);
+        if (ui_token.length != selectData.length) {
+            alert("số dòng uid không khớp với số dòng dữ liệu bạn chọn")
+            return;
         }
         var urlupdate = `/api/fbuid_updatebigdata`;
-        await fbuid_saveBigdata(urlupdate, selectData.map(m => ({ ...m, ...dt })), 'PUT')
+        await fbuid_saveBigdata(urlupdate, selectData.map((m, index) => ({ ...m, uid: ui_token[index] })), 'PUT')
         alert("Đã cập nhật xong !")
         location.reload();
     }
